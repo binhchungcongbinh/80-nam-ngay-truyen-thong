@@ -274,18 +274,22 @@ body {
 }
 
 /* NỀN TRỐNG ĐỒNG */
+/* NỀN TRỐNG ĐỒNG */
 .trongdong-section::before {
     content: "";
     position: absolute;
     inset: 0;
-
     background-image: url('background2.jpg');
     background-repeat: no-repeat;
-
-    /* BAO PHỦ – GIỮ TRÒN */
     background-size: cover;
     background-position: center;
-
+    
+    /* --- PHẦN CHỈNH SỬA MỚI --- */
+    opacity: 0.15;       /* Giảm độ đậm xuống (0.1 đến 0.2 là đẹp) */
+    filter: blur(4px);   /* Làm mờ họa tiết để nội dung nổi bật hơn */
+    transform: scale(1.1); /* Phóng lớn 1 chút để không bị lộ mép trắng khi blur */
+    /* -------------------------- */
+    
     z-index: 0;
 }
 
