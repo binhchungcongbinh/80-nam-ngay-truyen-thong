@@ -267,24 +267,37 @@ body {
 }
 /* 1. Xử lý nền Trống đồng tròn trịa */
 /* NỀN TRỐNG ĐỒNG BAO PHỦ TOÀN BỘ */
-.content-wrapper {
+.trongdong-section {
+    position: relative;
+    width: 100%;
+    padding-bottom: 30px; /* chừa không gian cho footer */
+}
+
+/* NỀN TRỐNG ĐỒNG */
+.trongdong-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
     background-image: url('background2.jpg');
     background-repeat: no-repeat;
 
-    /* QUAN TRỌNG */
-    background-size: cover;        /* Bao trọn toàn bộ, giữ tròn */
-    background-position: center;   /* Cắt đều 4 phía */
+    /* BAO PHỦ – GIỮ TRÒN */
+    background-size: cover;
+    background-position: center;
 
-    min-height: 100vh;
-    width: 100%;
+    z-index: 0;
+}
 
-    display: flex;
-    flex-direction: column;
+/* NỘI DUNG Ở TRÊN NỀN */
+.trongdong-section > * {
+    position: relative;
+    z-index: 1;
 }
 
 
 .blue-text {
-    color: #003366; /* Màu xanh Navy của Binh chủng */
+    color: #6666; /* Màu xanh Navy của Binh chủng */
     font-size: 1.5rem; /* To và rõ ràng */
     font-weight: 800;
     margin: 0;
