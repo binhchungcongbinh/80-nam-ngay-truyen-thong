@@ -266,17 +266,22 @@ body {
     margin-top: 5px;
 }
 /* 1. Xử lý nền Trống đồng tròn trịa */
+/* NỀN TRỐNG ĐỒNG BAO PHỦ TOÀN BỘ */
 .content-wrapper {
     background-image: url('background2.jpg');
     background-repeat: no-repeat;
-    background-position: center top;
 
-
+    /* QUAN TRỌNG */
+    background-size: cover;        /* Bao trọn toàn bộ, giữ tròn */
+    background-position: center;   /* Cắt đều 4 phía */
 
     min-height: 100vh;
+    width: 100%;
+
     display: flex;
     flex-direction: column;
 }
+
 
 .blue-text {
     color: #003366; /* Màu xanh Navy của Binh chủng */
