@@ -277,7 +277,37 @@ footer {
     margin-top: 10px;
     font-size: 14px;
 }
+/* Thêm class mới này vào */
+.content-wrapper {
+    /* Đường dẫn ảnh nền của bạn */
+    background-image: url('background2.jpg');
+    
+    /* 1. Ép ảnh vừa khít 100% chiều ngang và dọc của vùng này */
+    /* Lưu ý: Ảnh có thể hơi bị méo nếu tỉ lệ màn hình khác tỉ lệ ảnh, 
+       nhưng đảm bảo hiển thị TRỌN VẸN không bị cắt */
+    background-size: 100% 100%; 
+    
+    /* 2. Không lặp lại ảnh */
+    background-repeat: no-repeat;
+    
+    /* 3. Căn giữa */
+    background-position: center center;
+    
+    /* 4. Đảm bảo khung này chiếm hết khoảng trống còn lại */
+    width: 100%;
+    /* Flex grow giúp nó tự đẩy footer xuống đáy nếu dùng flex layout ở body */
+    flex: 1; 
+    
+    /* Tùy chọn: Thêm padding đáy một chút để nội dung không dính sát Footer */
+    padding-bottom: 20px;
+}
 
+/* TÙY CHỌN: Làm trong suốt các ô nội dung để nhìn thấy nền Trống đồng mờ ảo */
+/* Nếu bạn muốn các ô màu trắng (Ảnh/Video) nhìn xuyên thấu xuống nền, hãy chỉnh dòng này: */
+.card-box, .cta-card {
+    /* Màu trắng nhưng độ trong suốt 90% */
+    background: rgba(255, 255, 255, 0.9); 
+}
 /* --- RESPONSIVE --- */
 @media (max-width: 768px) {
     .header { height: 180px; }
