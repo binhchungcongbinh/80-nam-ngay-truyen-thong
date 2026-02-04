@@ -277,37 +277,40 @@ footer {
     margin-top: 10px;
     font-size: 14px;
 }
-/* Thêm class mới này vào */
+/* 1. Xử lý nền Trống đồng tròn trịa */
 .content-wrapper {
-    /* Đường dẫn ảnh nền của bạn */
     background-image: url('background2.jpg');
-    
-    /* 1. Ép ảnh vừa khít 100% chiều ngang và dọc của vùng này */
-    /* Lưu ý: Ảnh có thể hơi bị méo nếu tỉ lệ màn hình khác tỉ lệ ảnh, 
-       nhưng đảm bảo hiển thị TRỌN VẸN không bị cắt */
-    background-size: 100% 100%; 
-    
-    /* 2. Không lặp lại ảnh */
+    /* 'contain' giúp ảnh giữ nguyên tỉ lệ, hiện đầy đủ chiều cao mà không bị cắt trên dưới */
+    background-size: contain; 
     background-repeat: no-repeat;
-    
-    /* 3. Căn giữa */
     background-position: center center;
-    
-    /* 4. Đảm bảo khung này chiếm hết khoảng trống còn lại */
+    background-color: #f0f2f5; /* Màu nền phụ để lấp đầy 2 bên nếu màn hình quá rộng */
     width: 100%;
-    /* Flex grow giúp nó tự đẩy footer xuống đáy nếu dùng flex layout ở body */
-    flex: 1; 
-    
-    /* Tùy chọn: Thêm padding đáy một chút để nội dung không dính sát Footer */
-    padding-bottom: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-/* TÙY CHỌN: Làm trong suốt các ô nội dung để nhìn thấy nền Trống đồng mờ ảo */
-/* Nếu bạn muốn các ô màu trắng (Ảnh/Video) nhìn xuyên thấu xuống nền, hãy chỉnh dòng này: */
-.card-box, .cta-card {
-    /* Màu trắng nhưng độ trong suốt 90% */
-    background: rgba(255, 255, 255, 0.9); 
+/* 2. Style cho 2 dòng chữ màu xanh mới thêm */
+.extra-slogan {
+    margin: 10px 0;
 }
+
+.blue-text {
+    color: #003366; /* Màu xanh Navy của Binh chủng */
+    font-size: 1.5rem; /* To và rõ ràng */
+    font-weight: 800;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+}
+
+
+/* 3. Đảm bảo các box nội dung không che hoàn toàn nền */
+.card-box {
+    /* Thêm một chút độ trong suốt để nền trống đồng ẩn hiện phía sau */
+    background: rgba(255, 255, 255, 0.92) !important;
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 768px) {
     .header { height: 180px; }
