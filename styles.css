@@ -166,18 +166,78 @@ body {
 }
 
 /* KÍCH THƯỚC ẢNH VÀ VIDEO: GIẢM XUỐNG ĐỂ VỪA MÀN HÌNH */
-.image-slider, .video-wrapper iframe {
+/* CHIỀU CAO VIDEO: Cố định để cân bằng với Slider */
+.video-wrapper iframe {
     width: 100%;
-    /* 260px là đủ nhìn trên Desktop và không chiếm quá nhiều chỗ */
-    height: 260px; 
+    height: 260px; /* Bắt buộc bằng chiều cao .image-slider để không bị lệch */
     border-radius: 4px;
-    object-fit: cover;
+    border: none; /* Bỏ viền mặc định của iframe */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: block;
 }
 
-.slide-img { width: 100%; height: 100%; object-fit: cover; display: none; }
-.slide-img.active { display: block; }
-.prev, .next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 50%; margin: 0 5px; }
-.next { right: 0; }
+/* Thêm một chút cho khung bao nếu cần */
+.video-wrapper {
+    width: 100%;
+    background: #000; /* Tạo nền đen nếu video có tỉ lệ khác, trông sẽ chuyên nghiệp hơn */
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* --- CẬP NHẬT SLIDER CHUYÊN NGHIỆP --- */
+.image-slider {
+    position: relative; /* Gốc tọa độ cho các nút */
+    width: 100%;
+    height: 260px; 
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #000; /* Nền đen cho các khoảng trống nếu ảnh co lại */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slide-img {
+    position: absolute; /* Để các ảnh chồng lên nhau */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* THAY ĐỔI: Sử dụng contain để thấy toàn bộ ảnh, không bị mất hình */
+    object-fit: contain; 
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 1;
+}
+
+.slide-img.active {
+    opacity: 1;
+    z-index: 2; /* Hiện lên trên các ảnh khác */
+}
+
+/* HIỆN THỊ NÚT TIẾN LÙI */
+.prev, .next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 51, 102, 0.6); /* Màu navy theo tông header */
+    color: white;
+    border: none;
+    padding: 12px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    z-index: 10; /* Đảm bảo luôn nằm trên ảnh */
+    transition: background 0.3s;
+    font-size: 18px;
+    outline: none;
+}
+
+.prev:hover, .next:hover {
+    background: var(--primary-red); /* Di chuột vào hiện màu đỏ nổi bật */
+}
+
+.prev { left: 10px; }
+.next { right: 10px; }
 
 /* --- 6. FOOTER --- */
 footer {
