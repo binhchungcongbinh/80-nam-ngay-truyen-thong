@@ -95,10 +95,7 @@ body {
 }
 
 .cta-card {
-        background-image: url('background2.jpg');
-    background-repeat: no-repeat;
-    background-position: center top;
-
+          background: white;
     width: auto; 
     height: 100%; 
     padding: 15px 20px; /* Giảm padding cho thẻ gọn hơn */
@@ -274,11 +271,7 @@ body {
     background-repeat: no-repeat;
     background-position: center top;
 
-    /* GIỮ TRÒN – KHÔNG MÉO */
-    background-size: auto 100%;
 
-    /* 2 bên ngang màu xanh */
-    background-color: #003366;
 
     min-height: 100vh;
     display: flex;
