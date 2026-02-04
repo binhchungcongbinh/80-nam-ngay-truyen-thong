@@ -1,39 +1,34 @@
 document.addEventListener('DOMContentLoaded', function() {
-    
     let currentIndex = 0;
     const images = document.querySelectorAll('.slide-img');
     const totalImages = images.length;
+    let slideTimer;
 
-    // Hàm hiển thị slide
     function showSlide(index) {
-        // Ẩn tất cả ảnh
-        images.forEach((img) => {
-            img.classList.remove('active');
-        });
-        
-        // Hiện ảnh hiện tại
+        images.forEach((img) => img.classList.remove('active'));
         if (images[index]) {
             images[index].classList.add('active');
         }
     }
 
-    // Chuyển slide tiếp theo
     window.nextSlide = function() {
         currentIndex = (currentIndex + 1) % totalImages;
         showSlide(currentIndex);
+        resetTimer(); // Reset thời gian chờ khi bấm nút
     }
 
-    // Quay lại slide trước
     window.prevSlide = function() {
         currentIndex = (currentIndex - 1 + totalImages) % totalImages;
         showSlide(currentIndex);
+        resetTimer(); // Reset thời gian chờ khi bấm nút
     }
 
-    // Khởi tạo slide đầu tiên
-    showSlide(currentIndex);
+    function resetTimer() {
+        clearInterval(slideTimer);
+        slideTimer = setInterval(nextSlide, 5000);
+    }
 
-    // Tự động chuyển ảnh sau mỗi 5 giây (Tuỳ chọn)
-    setInterval(() => {
-        nextSlide();
-    }, 5000);
+    // Khởi tạo
+    showSlide(currentIndex);
+    resetTimer();
 });
