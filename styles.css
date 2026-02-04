@@ -1,31 +1,31 @@
-/* --- 1. CẤU HÌNH CHUNG --- */
+
 :root {
-    --primary-red: #DA251D;  
+    --primary-red: #B22222;  /* Màu đỏ trầm hơn để hài hòa nền xanh */
     --primary-gold: #D4AF37; 
-    --primary-navy: #003366; 
-    --text-dark: #333;
-    --bg-harmonious: #f0f2f5; 
+    --primary-navy: #002D5A; 
+    --text-dark: #1a1a1a;
 }
 
 body {
     font-family: 'Roboto', sans-serif;
-    background-color: var(--bg-harmonious);
     margin: 0;
     padding: 0;
     color: var(--text-dark);
-    line-height: 1.5; /* Giảm line-height chút cho gọn */
-    /* Mẹo nhỏ: Ẩn thanh cuộn ngang nếu có lỡ tràn */
-    overflow-x: hidden; 
-}
-
-/* --- 2. HEADER (THU GỌN LẠI CHÚT) --- */
-.header {
-    position: relative;
-    background-image: url('nen 2.jpg');
+    line-height: 1.4;
+    /* Cấu hình ảnh nền background2.jpg */
+    background-image: url('background2.jpg');
     background-size: cover;
     background-position: center;
-    /* Giảm từ 280px xuống 220px để tiết kiệm đất cho phần dưới */
-    height: 220px; 
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height: 100vh;
+    overflow-x: hidden;
+}
+
+/* --- 2. HEADER --- */
+.header {
+    position: relative;
+    height: 140px; /* Thu nhỏ để nội dung chính đẩy lên */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -35,7 +35,7 @@ body {
 .header-overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(to bottom, rgba(0,51,102,0.8), rgba(0,51,102,0.5));
+    background: rgba(0, 45, 90, 0.6); /* Lớp phủ xanh nhẹ để nổi chữ */
     z-index: 1;
 }
 
@@ -45,253 +45,111 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
-    text-align: center;
-    /* Đẩy nội dung lên trên một chút để chừa chỗ cho 2 thẻ Card đè lên */
-    transform: translateY(-15px); 
+    transform: translateY(-5px);
 }
 
-.header-logo {
-    height: 90px; /* Thu nhỏ logo xíu cho cân đối với header mới */
-    filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
-}
+.header-logo { height: 75px; }
 
 .header-text {
-    display: flex;
-    flex-direction: column;
     font-family: 'Merriweather', serif;
     text-transform: uppercase;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
-.text-upper {
-    font-size: 24px; /* Giảm size chữ header chút */
-    font-weight: 900;
-    color: #FFD700;
-    letter-spacing: 1px;
-}
+.text-upper { font-size: 22px; font-weight: 900; color: #FFD700; }
+.text-lower { font-size: 24px; font-weight: 700; color: #FFD700; }
 
-.text-lower {
-    font-size: 26px;
-    font-weight: 700;
-    color: #FFD700;
-}
-
-/* --- 3. CTA CARDS (CHIA ĐÔI 50-50) --- */
+/* --- 3. CTA CARDS --- */
 .cta-container {
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 1100px;
+    margin: -25px auto 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
     padding: 0 15px;
-    
-    margin-top: -40px; /* Đẩy lên đè header ít hơn chút */
     position: relative;
     z-index: 10;
-    
-    display: grid;
-    /* THAY ĐỔI QUAN TRỌNG: 1fr 1fr để chia đều 2 bên */
-    grid-template-columns: 1fr 1fr; 
-    gap: 20px; /* Giảm khoảng cách khe giữa */
-    box-sizing: border-box;
 }
 
 .cta-card {
-    background: white;
-    width: auto; 
-    height: 100%; 
-    padding: 15px 20px; /* Giảm padding cho thẻ gọn hơn */
-    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9); /* Độ trong suốt nhẹ để thấy nền */
+    padding: 12px 15px;
+    border-radius: 8px;
     text-decoration: none;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     display: flex;
     align-items: center;
-    gap: 15px;
-    transition: transform 0.3s ease;
-    border-left: 5px solid #ccc;
-    box-sizing: border-box;
+    gap: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-bottom: 3px solid #ccc;
 }
 
-.cta-card:hover { transform: translateY(-3px); }
+.card-red { border-bottom-color: var(--primary-red); }
+.card-gold { border-bottom-color: var(--primary-gold); }
 
-.card-red { border-left-color: var(--primary-red); }
-.card-red .cta-icon { background: #fee2e2; color: var(--primary-red); }
-.card-red h3 { color: var(--primary-red); }
+.cta-card h3 { margin: 0; font-size: 15px; color: var(--primary-navy); }
 
-.card-gold { border-left-color: var(--primary-gold); }
-.card-gold .cta-icon { background: #fef3c7; color: var(--primary-gold); }
-.card-gold h3 { color: #b48e18; }
-
-.cta-icon {
-    font-size: 30px; 
-    width: 55px;
-    height: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.text-content { flex: 1; }
-
-.cta-card h3 { 
-    margin: 0; 
-    font-size: 16px; 
-    font-weight: bold; 
-    line-height: 1.3;
-}
-
-.cta-card p { 
-    margin: 5px 0 0; 
+/* --- MÀU SẮC SLOGAN HÀI HÒA --- */
+.slogan-1 { 
+    margin: 3px 0 0; 
     font-size: 13px; 
-    color: #666; 
+    color: #8B0000; /* Đỏ Crimson đậm */
+    font-weight: bold;
+}
+.slogan-2 { 
+    margin: 3px 0 0; 
+    font-size: 13px; 
+    color: #004D40; /* Xanh lá quân đội đậm */
+    font-weight: bold;
 }
 
-/* --- 4. BODY & TIÊU ĐỀ --- */
+.cta-icon { font-size: 24px; }
+
+/* --- 4. MAIN CONTAINER --- */
 .container {
-    max-width: 1200px;
-    /* Giảm margin top/bottom để kéo nội dung lại gần nhau */
-    margin: 30px auto 20px; 
+    max-width: 1100px;
+    margin: 10px auto;
     padding: 0 15px;
 }
 
-.intro-section {
-    text-align: center;
-    margin-bottom: 25px; /* Giảm khoảng cách dưới tiêu đề */
-}
+.intro-section { text-align: center; margin-bottom: 15px; }
+.main-title { font-size: 20px; color: #002D5A; margin-bottom: 5px; }
+.sub-title { color: #B22222; font-size: 15px; font-weight: bold; text-transform: uppercase; }
 
-.main-title {
-    font-family: 'Merriweather', serif;
-    color: var(--primary-navy);
-    font-size: 22px; /* Chữ tiêu đề vừa phải */
-    font-weight: 900;
-    margin-bottom: 5px;
-    line-height: 1.3;
-}
-
-.sub-title {
-    color: #DA251D;
-    font-size: 16px;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-top: 5px;
-}
-
-/* --- 5. GRID CONTENT (CHIA ĐÔI 50-50 & CÂN BẰNG ẢNH/VIDEO) --- */
+/* --- 5. GRID NỘI DUNG (CHỈ 2 Ô) --- */
 .content-grid {
     display: grid;
-    /* THAY ĐỔI QUAN TRỌNG: Chia đôi đều nhau, khớp với hàng trên */
-    grid-template-columns: 1fr 1fr; 
-    gap: 20px;
-    align-items: start; /* Căn nội dung bắt đầu từ trên xuống */
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
 }
 
 .card-box {
-    background: white;
-    padding: 15px; /* Giảm padding trong box để tiết kiệm diện tích */
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
+    height: 300px; /* Ép độ cao để vừa màn hình 24 inch */
 }
 
-.section-heading {
-    margin-top: 0;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 8px;
-    margin-bottom: 10px;
-    color: var(--primary-navy);
-    font-size: 18px;
-}
+.section-heading { font-size: 16px; margin: 0 0 10px 0; border-bottom: 1px solid #ddd; }
 
-/* --- CÂN BẰNG KÍCH THƯỚC ẢNH VÀ VIDEO --- */
-/* Tôi đặt chiều cao cố định (Height) giống nhau cho cả 2 để đẹp đội hình */
-
-/* Slider bên trái */
-.image-slider {
-    position: relative;
+.image-slider, .video-wrapper iframe {
     width: 100%;
-    /* Chiều cao 280px: Đủ lớn để xem, đủ nhỏ để gọn màn hình */
-    height: 280px; 
-    overflow: hidden;
-    border-radius: 6px;
-}
-
-.slide-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Đảm bảo ảnh luôn lấp đầy khung 280px */
-    display: none;
-    animation: fadeEffect 1s;
-}
-.slide-img.active { display: block; }
-
-/* Video bên phải */
-.video-wrapper iframe {
-    width: 100%;
-    /* Chiều cao bằng Slider bên trái: 280px */
-    height: 280px; 
-    border-radius: 6px;
-}
-
-/* Điều chỉnh nút slider nhỏ lại chút */
-.prev, .next {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0,0,0,0.4);
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 50%;
-    margin: 0 5px;
-}
-.next { right: 0; }
-
-/* Tin tức (Bên dưới video) */
-.news-box {
-    /* Box tin tức sẽ nằm dưới video ở cột phải */
-    margin-top: 0; 
-    /* Có thể làm nó nhỏ gọn hơn nếu muốn */
-}
-.btn-read-more {
-    display: inline-block;
-    background-color: var(--primary-navy);
-    color: white;
-    padding: 8px 15px;
+    height: 250px; /* Đảm bảo cả 2 cao bằng nhau */
     border-radius: 4px;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 13px;
-    margin-top: 5px;
 }
 
-@keyframes fadeEffect { from {opacity: .6} to {opacity: 1} }
+.slide-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+.slide-img.active { display: block; }
 
 /* --- 6. FOOTER --- */
 footer {
-    background-color: var(--primary-navy);
-    color: white;
     text-align: center;
-    padding: 10px; /* Footer mỏng lại */
-    margin-top: 10px;
-    font-size: 14px;
+    padding: 10px;
+    font-size: 12px;
+    color: white;
+    background: rgba(0, 45, 90, 0.8);
+    position: fixed;
+    bottom: 0;
+    width: 100%;
 }
 
-/* --- RESPONSIVE --- */
-@media (max-width: 768px) {
-    .header { height: 180px; }
-    .header-text .text-upper { font-size: 18px; }
-    .header-text .text-lower { font-size: 20px; }
-    .header-logo { height: 70px; }
-    
-    .cta-container, 
-    .content-grid {
-        grid-template-columns: 1fr; /* Mobile về 1 cột */
-        gap: 15px;
-    }
-    
-    .image-slider, .video-wrapper iframe {
-        height: 220px; /* Mobile thì video/ảnh bé lại chút */
-    }
-}
+/* Nút bấm slide nhỏ lại */
+.prev, .next { padding: 5px 10px; font-size: 14px; }
