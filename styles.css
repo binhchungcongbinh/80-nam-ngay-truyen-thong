@@ -295,15 +295,14 @@ body {
     z-index: 1;
 }
 
-.blue-text {
-    color: #0b2e59;      /* Navy đậm, sạch */
+.cta-card .blue-text {
+    color: #08264d; /* navy đậm hơn nhiều */
     font-size: 1.2rem;
     font-weight: 700;
-    margin: 0;
-
-    text-shadow: 0 1px 1px rgba(0,0,0,0.25);
-    letter-spacing: 0.4px;
+    letter-spacing: 0.3px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.25);
 }
+
 
 @keyframes fadeEffect { from {opacity: .6} to {opacity: 1} }
 
