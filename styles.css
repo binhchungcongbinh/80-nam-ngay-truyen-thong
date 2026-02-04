@@ -95,7 +95,10 @@ body {
 }
 
 .cta-card {
-    background: white;
+        background-image: url('background2.jpg');
+    background-repeat: no-repeat;
+    background-position: center top;
+
     width: auto; 
     height: 100%; 
     padding: 15px 20px; /* Giảm padding cho thẻ gọn hơn */
