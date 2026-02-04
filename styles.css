@@ -295,14 +295,16 @@ body {
     z-index: 1;
 }
 
-
 .blue-text {
-    color: #6666; /* Màu xanh Navy của Binh chủng */
-    font-size: 1.5rem; /* To và rõ ràng */
-    font-weight: 800;
+    color: #0b2e59;      /* Navy đậm, sạch */
+    font-size: 1.2rem;
+    font-weight: 700;
     margin: 0;
-    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+
+    text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+    letter-spacing: 0.4px;
 }
+
 @keyframes fadeEffect { from {opacity: .6} to {opacity: 1} }
 
 /* --- 6. FOOTER --- */
