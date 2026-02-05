@@ -50,14 +50,10 @@
             <div class="left-column">
                 <div class="card-box">
                     <h3 class="section-heading">📸 Ảnh truyền thống</h3>
-                    <div class="image-slider">
-                        <img src="image1.jpg" alt="Ảnh hoạt động 1" class="slide-img active" />
-                        <img src="image2.jpg" alt="Ảnh hoạt động 2" class="slide-img" />
-                        <img src="image3.png" alt="Ảnh hoạt động 3" class="slide-img" />
-                        
-                        <button class="prev" onclick="prevSlide()">&#10094;</button>
-                        <button class="next" onclick="nextSlide()">&#10095;</button>
-                    </div>
+                  <div class="image-slider" id="main-slider">
+                        <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
+                        <button class="next" onclick="changeSlide(1)">&#10095;</button>
+                </div>
                 </div>
             </div>
 
