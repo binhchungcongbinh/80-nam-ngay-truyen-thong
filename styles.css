@@ -1,6 +1,5 @@
 /* 0. KHAI BÁO FONT OFFLINE */
-        /* Bạn cần tải file ttf về và để vào thư mục 'fonts' */
-        
+     
         @font-face {
             font-family: 'Roboto';
             src: url('fonts/Roboto-Regular.ttf') format('truetype');
