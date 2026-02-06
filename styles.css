@@ -265,12 +265,12 @@ body {
     font-size: 13px;
     margin-top: 5px;
 }
-/* 1. Xử lý nền Trống đồng tròn trịa */
+
 /* NỀN TRỐNG ĐỒNG BAO PHỦ TOÀN BỘ */
 .trongdong-section {
     position: relative;
+    min-height: 100vh; /* phủ toàn chiều cao màn hình */
     width: 100%;
-    padding-bottom: 30px; /* chừa không gian cho footer */
 }
 
 /* NỀN TRỐNG ĐỒNG */
@@ -281,20 +281,18 @@ body {
 
     background-image: url('Background5.png');
     background-repeat: no-repeat;
-
-    /* BAO PHỦ – GIỮ TRÒN */
     background-size: cover;
     background-position: center;
 
     z-index: 0;
 }
 
-
-/* NỘI DUNG Ở TRÊN NỀN */
+/* TẤT CẢ NỘI DUNG NỔI LÊN TRÊN NỀN */
 .trongdong-section > * {
     position: relative;
     z-index: 1;
 }
+
 
 .cta-card .blue-text {
     color: #08264d; /* navy đậm hơn nhiều */
