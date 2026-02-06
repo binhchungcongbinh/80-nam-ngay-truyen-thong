@@ -21,7 +21,7 @@ body {
 /* --- 2. HEADER (THU GỌN LẠI CHÚT) --- */
 .header {
     position: relative;
-     background: none;
+    background-image: url('nen 2.jpg');
     background-size: cover;
     background-position: center;
     /* Giảm từ 280px xuống 220px để tiết kiệm đất cho phần dưới */
@@ -265,8 +265,7 @@ body {
     font-size: 13px;
     margin-top: 5px;
 }
-
-/* NỀN TRỐNG ĐỒNG BAO PHỦ TOÀN BỘ */
+/* 1. Xử lý nền Trống đồng tròn trịa */
 /* NỀN TRỐNG ĐỒNG BAO PHỦ TOÀN BỘ */
 .trongdong-section {
     position: relative;
@@ -280,7 +279,7 @@ body {
     position: absolute;
     inset: 0;
 
-    background-image: url('background6.jpg');
+    background-image: url('Background5.png');
     background-repeat: no-repeat;
 
     /* BAO PHỦ – GIỮ TRÒN */
@@ -296,7 +295,6 @@ body {
     position: relative;
     z-index: 1;
 }
-
 
 .cta-card .blue-text {
     color: #08264d; /* navy đậm hơn nhiều */
