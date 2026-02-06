@@ -21,7 +21,7 @@ body {
 /* --- 2. HEADER (THU GỌN LẠI CHÚT) --- */
 .header {
     position: relative;
-    background-image: url('nen 2.jpg');
+     background: none;
     background-size: cover;
     background-position: center;
     /* Giảm từ 280px xuống 220px để tiết kiệm đất cho phần dưới */
