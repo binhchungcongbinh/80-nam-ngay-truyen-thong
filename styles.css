@@ -14,7 +14,7 @@
         }
         @font-face {
             font-family: 'Merriweather';
-            src: url('fonts/Merriweather-Bold.ttf') format('truetype');
+            src: url('fonts/merriweather.ultrabold.ttf') format('truetype');
             font-weight: 700;
             font-style: normal;
         }
