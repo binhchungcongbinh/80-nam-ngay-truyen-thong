@@ -1,35 +1,4 @@
-/* 0. KHAI BÁO FONT OFFLINE */
-     
-        @font-face {
-            font-family: 'Roboto';
-            src: url('fonts/Roboto-Regular.ttf') format('truetype');
-            font-weight: 400;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'Roboto';
-            src: url('fonts/Roboto-Medium.ttf') format('truetype');
-            font-weight: 500;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'Merriweather';
-            src: url('fonts/merriweather.ultrabold.ttf') format('truetype');
-            font-weight: 700;
-            font-style: normal;
-        }
 
-        /* Fallback: Nếu chưa tải font kịp thì dùng font có sẵn trên máy */
-        body { font-family: 'Roboto', Arial, sans-serif; }
-        .header-text, .main-title { font-family: 'Merriweather', 'Times New Roman', serif; }
-        
-        /* Chỉnh lại video cho offline */
-        .local-video {
-            width: 100%;
-            height: 100%;
-            border-radius: 6px;
-            object-fit: cover;
-        }
 /* --- 1. CẤU HÌNH CHUNG --- */
 :root {
     --primary-red: #DA251D;  
