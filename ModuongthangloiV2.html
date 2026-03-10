@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vòng Quay Mở Đường Thắng Lợi (Official Version)</title>
+    <style>
+        /* --- 1. CẤU HÌNH GIAO DIỆN (OFFLINE SAFE) --- */
+        :root {
+            --army-primary: #2e7d32;    
+            --army-secondary: #4caf50;  
+            --bg-color: #e8f5e9;        
+            --vn-red: #d32f2f;          
+            --vn-gold: #fbc02d;         
+            --text-main: #1b5e20;       
+            --panel-bg: rgba(255, 255, 255, 0.95); 
+            --wheel-border: #1b5e20;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, #c8e6c9 10%, transparent 11%),
+                radial-gradient(circle at 90% 80%, #a5d6a7 15%, transparent 16%),
+                radial-gradient(circle at 50% 50%, #fff 2%, transparent 3%),
+                linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 100%);
+            background-size: 100% 100%;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        header {
+            text-align: center;
+            padding: 10px;
+            background: linear-gradient(to bottom, var(--army-primary), var(--army-secondary));
+            width: 100%;
+            border-bottom: 4px solid var(--vn-gold);
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            color: #fff;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            margin: 0;
+            text-transform: uppercase;
+            font-size: 2rem;
+            color: var(--vn-gold);
+            text-shadow: 2px 2px 0px #b71c1c, 4px 4px 10px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+            font-weight: 900;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #ffeb3b;
+            margin-top: 5px;
+            font-style: italic;
+            font-weight: 500;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* --- LAYOUT CHÍNH (CĂN GIỮA) --- */
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            padding: 20px;
+            width: 100%;
+            max-width: 1400px; 
+            box-sizing: border-box;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* --- VÒNG QUAY (KÍCH THƯỚC CHUẨN 690px) --- */
+        .wheel-wrapper {
+            position: relative;
+            width: 690px; 
+            height: 690px; 
+            filter: drop-shadow(0 15px 25px rgba(27, 94, 32, 0.4));
+            max-width: 90vw;
+            max-height: 90vw;
+            flex-shrink: 0;
+        }
+
+        canvas#wheelCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid #fff; 
+            outline: 10px solid var(--wheel-border); 
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+            background: #fff;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -35px; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-top: 60px solid var(--vn-red);
+            z-index: 10;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+
+        /* Nút quay QUAY */
+        .spin-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px; 
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #e53935 30%, #b71c1c 100%);
+            border: 5px solid #fff;
+            color: #fff;
+            font-weight: 900;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(218, 37, 29, 0.5);
+            z-index: 20;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spin-btn:active { transform: translate(-50%, -50%) scale(0.95); }
+        .spin-btn:disabled { background: #9e9e9e; cursor: not-allowed; box-shadow: none; border-color: #e0e0e0; }
+
+        /* --- BẢNG THÔNG TIN --- */
+        .info-panel {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px; 
+            background: var(--panel-bg);
+            border: 2px solid var(--army-secondary);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 50px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr; 
+            gap: 15px;
+        }
+
+        .score-box {
+            background: linear-gradient(135deg, #66bb6a, #2e7d32);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            color: #fff;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .label-text { font-size: 1rem; text-transform: uppercase; opacity: 0.9; font-weight: bold; display: block; margin-bottom: 5px; }
+        .value-text { font-size: 2.5rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+
+        /* --- DÒNG THÔNG BÁO MỤC TIÊU --- */
+        .lives-box {
+            text-align: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 5px;
+            background: #1976d2; 
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #0d47a1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+            line-height: 1.4;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.02);} 100% {transform: scale(1);} }
+
+        .status-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-style: italic;
+            color: var(--vn-red);
+            font-weight: bold;
+            font-size: 1.1rem;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--army-secondary);
+        }
+
+        .legend-box h3 { border-bottom: 2px solid var(--army-secondary); padding-bottom: 10px; margin-top: 0; color: var(--army-primary); }
+        .legend-list { list-style: none; padding: 0; margin: 0; }
+        .legend-list li { margin-bottom: 10px; display: flex; align-items: center; color: #333; font-weight: 500; }
+        .legend-icon { margin-right: 10px; font-size: 1.3rem; min-width: 30px; text-align: center; }
+
+        .btn-finish {
+            width: 100%;
+            margin-top: 5px;
+            padding: 12px;
+            background: #607d8b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+        }
+        .btn-finish:hover {
+            background: #455a64;
+            transform: translateY(-2px);
+        }
+
+        /* --- MODALS --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: #fff;
+            color: #333;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            border: 1px solid #ddd;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .modal-header {
+            background: var(--army-primary);
+            color: #fff;
+            padding: 15px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 4px solid var(--vn-gold);
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .modal-body { padding: 25px; background: #fafafa; }
+
+        #timerDisplay {
+            font-size: 3rem;
+            color: #d32f2f;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            animation: pulseTimer 1s infinite;
+        }
+        @keyframes pulseTimer { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
+
+        .question-text { font-size: 1.3rem; font-weight: bold; margin-bottom: 25px; color: var(--text-main); line-height: 1.5; text-align: justify; }
+
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid #bdbdbd;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            font-family: 'Segoe UI', sans-serif;
+            color: #424242;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: #e8f5e9;
+            border-color: var(--army-primary);
+            color: var(--army-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .hint-btn {
+            background: #ff9800; color: white; border: none; border-radius: 50px; padding: 12px 25px;
+            margin-bottom: 20px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center;
+            gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); width: 100%; font-size: 1.1rem;
+        }
+        .hint-btn:hover { background: #f57c00; transform: translateY(-2px); }
+
+        .correct { background: #c8e6c9 !important; color: #1b5e20 !important; border-color: #2e7d32 !important; font-weight: bold; }
+        .wrong { background: #ffcdd2 !important; color: #b71c1c !important; border-color: #c62828 !important; }
+
+        .result-message { margin-top: 20px; font-weight: 900; font-size: 1.3rem; text-align: center; min-height: 40px; padding: 10px; }
+
+        .explanation-box {
+            display: none; margin-top: 15px; padding: 15px; background-color: #fff9c4;
+            border-left: 5px solid #fbc02d; color: #5d4037; text-align: justify; line-height: 1.5; font-size: 1.1rem; border-radius: 4px;
+        }
+
+        .close-modal-btn {
+            display: none; margin: 20px auto 0; padding: 10px 40px; background: var(--army-primary); color: #fff;
+            border: none; border-radius: 50px; cursor: pointer; font-size: 1.1rem; font-weight: bold;
+            text-transform: uppercase; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .close-modal-btn:hover { background: var(--army-secondary); transform: translateY(-2px); }
+        .close-modal-btn.game-over-btn { background: var(--vn-red); animation: shake 0.5s; }
+
+        .special-icon { font-size: 5rem; display: block; text-align: center; margin-bottom: 15px; animation: bounce 1.5s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
+
+        .review-summary { text-align: center; margin-bottom: 20px; font-size: 1.2rem; }
+        .final-rank-display { font-size: 2rem; color: var(--vn-red); font-weight: bold; text-transform: uppercase; display: block; margin: 10px 0; }
+
+        .rank-up-anim { animation: pulse 0.5s 3; color: #fbc02d !important; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+        @media (max-width: 900px) {
+            .game-container { flex-direction: column; align-items: center; }
+            .wheel-wrapper { width: 90vw; height: 90vw; }
+            .spin-btn { width: 20vw; height: 20vw; font-size: 1rem; }
+            .options-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 1.5rem; }
+            .subtitle { font-size: 0.9rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confettiCanvas"></canvas>
+
+    <header>
+        <h1>VÒNG QUAY MỞ ĐƯỜNG THẮNG LỢI</h1>
+        <div class="subtitle">Kỷ niệm 80 năm Ngày thành lập Binh chủng Công binh (25/3/1946 - 25/3/2026)</div>
+    </header>
+
+    <div class="game-container">
+        <!-- Vòng quay lớn 690px -->
+        <div class="wheel-wrapper">
+            <div class="pointer"></div>
+            <canvas id="wheelCanvas" width="690" height="690"></canvas>
+            <button class="spin-btn" id="spinBtn" onclick="spinWheel()">QUAY</button>
+        </div>
+
+        <!-- Bảng thông tin -->
+        <div class="info-panel">
+            <div class="stats-grid">
+                <div class="score-box">
+                    <span class="label-text">Điểm số</span>
+                    <span class="value-text" id="scoreValue">0</span>
+                </div>
+            </div>
+            
+            <!-- DÒNG THÔNG BÁO MỤC TIÊU -->
+            <div class="lives-box">
+                MỤC TIÊU: ĐẠT 80 ĐIỂM - NHẬN QUÀ BẤT NGỜ
+            </div>
+
+            <div class="status-box" id="statusLog">
+                Đồng chí hãy nhấn nút QUAY để nhận nhiệm vụ!
+            </div>
+            
+            <div class="legend-box">
+                <h3>CHÚ THÍCH BẢN ĐỒ:</h3>
+                <ul class="legend-list">
+                    <li><span class="legend-icon">🔢</span> <strong>Ô Câu hỏi:</strong>&nbsp; Trả lời đúng nhận 10 điểm.</li>
+                    <li><span class="legend-icon" style="color: #fbc02d">★</span> <strong>Ô May Mắn:</strong>&nbsp; Cộng điểm.</li>
+                    <li><span class="legend-icon">🎁</span> <strong>Ô Quân Tiếp Viện:</strong>&nbsp; Nhận quà.</li>
+                    <li><span class="legend-icon">💡</span> <strong>Ô Trinh Sát:</strong>&nbsp; Nhận gợi ý.</li>
+                </ul>
+                <button class="btn-finish" onclick="finishGameSession()">KẾT THÚC</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="questionModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                NHIỆM VỤ TÁC CHIẾN
+            </div>
+            <div class="modal-body">
+                <!-- Đồng hồ đếm ngược -->
+                <div id="timerDisplay">⏳ 15</div>
+                
+                <div class="question-text" id="qText">Loading...</div>
+                
+                <!-- Nút sử dụng hint (mặc định ẩn) -->
+                <button id="useHintBtn" class="hint-btn" onclick="useHint()" style="display:none;">
+                    💡 SỬ DỤNG THẺ TRINH SÁT (50/50)
+                </button>
+
+                <div class="options-grid" id="qOptions"></div>
+                <div class="result-message" id="qResult"></div>
+                <div class="explanation-box" id="explanationBox">
+                    <strong>💡 GIẢI THÍCH CHI TIẾT:</strong><br>
+                    <span id="explanationText"></span>
+                </div>
+                <button class="close-modal-btn" id="continueBtn" onclick="closeModal()">Tiếp tục hành quân</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alertModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px; text-align: center;">
+            <div class="modal-header" style="background: var(--army-secondary);">THÔNG BÁO TỪ SỞ CHỈ HUY</div>
+            <div class="modal-body">
+                <div class="special-icon" id="alertIcon">★</div>
+                <h2 id="alertTitle" style="color: var(--army-primary); margin: 10px 0;">TIÊU ĐỀ</h2>
+                <p id="alertMsg" style="font-size: 1.2rem; color: #555;">Nội dung</p>
+                <button class="close-modal-btn" style="display: inline-block;" onclick="closeAlert()">Rõ!</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reviewModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header" id="reviewHeader" style="background: #1976d2;">TỔNG KẾT CHIẾN DỊCH</div>
+            <div class="modal-body">
+                <div class="review-summary">
+                    <p id="reviewMessage">Đồng chí đã hoàn thành nhiệm vụ!</p>
+                    <p>Tổng điểm: <strong id="finalScore" style="color: #2e7d32;">0</strong></p>
+                    <p>Số câu đúng: <strong id="finalCorrect">0</strong> | Số câu sai: <strong id="finalWrong">0</strong></p>
+                </div>
+                <div style="text-align: center;">
+                    <button onclick="resetGameSession()" style="padding: 15px 30px; background: var(--vn-red); color: white; border: none; border-radius: 50px; font-weight: bold; font-size: 1.2rem; cursor: pointer;">CHƠI LƯỢT MỚI</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SoundManager {
+            constructor() {
+                try {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch(e) { console.log("AudioContext not supported"); }
+            }
+
+            playTone(freq, type, duration, startTime = 0) {
+                if(!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(this.ctx.currentTime + startTime);
+                gain.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime + startTime + duration);
+                osc.stop(this.ctx.currentTime + startTime + duration);
+            }
+
+            playSpin() { this.playTone(600, 'triangle', 0.05); }
+            playCorrect() { 
+                this.playTone(523.25, 'sine', 0.1, 0); 
+                this.playTone(659.25, 'sine', 0.4, 0.1); 
+            }
+            playWrong() { 
+                this.playTone(150, 'sawtooth', 0.3);
+                this.playTone(100, 'sawtooth', 0.3, 0.2); 
+            }
+            playReward() { 
+                this.playTone(523.25, 'square', 0.2, 0);
+                this.playTone(659.25, 'square', 0.2, 0.2);
+                this.playTone(783.99, 'square', 0.4, 0.4);
+            }
+        }
+        const soundMgr = new SoundManager();
+
+        const wheelSegments = [
+            { type: "question" }, { type: "question" }, { type: "lucky" }, { type: "question" }, { type: "question" }, 
+            { type: "question" }, { type: "gift" }, { type: "question" }, { type: "question" }, { type: "question" },
+            { type: "hint" }, { type: "question" }, { type: "lucky" }, { type: "question" }, { type: "question" },
+            { type: "question" }, { type: "gift" }, { type: "question" }, { type: "question" }, { type: "question" },
+            { type: "lucky" }, { type: "question" }, { type: "question" }, { type: "hint" }, { type: "question" },
+            { type: "question" }, { type: "question" }, { type: "lucky" }, { type: "question" }, { type: "gift" }
+        ];
+
+        /* --- NGÂN HÀNG CÂU HỎI TỪ FILE VQ.DOCX (Đã xóa câu Thổ Nhĩ Kỳ, Thập kỷ, Trần Cừ, Army Games) --- */
+        const baseQuestions = [
+            { text: "Tiền thân sơ khai nhất của Bộ đội Công binh Việt Nam được gọi là gì?", options: ["Đội Cứu quốc quân", "Đội quân thợ", "Đội Tuyên truyền Giải phóng quân", "Đội Du kích Bắc Sơn"], correct: 1, explanation: "Đáp án đúng: B. Đội quân thợ" },
+            { text: "Ngày truyền thống của Binh chủng Công binh là ngày tháng năm nào?", options: ["22/12/1944", "02/9/1945", "25/3/1946", "19/12/1946"], correct: 2, explanation: "Đáp án đúng: C. 25/3/1946" },
+            { text: "Chủ tịch Hồ Chí Minh đã ký Sắc lệnh số bao nhiêu để thành lập Cục Công binh (thuộc Bộ Tổng Tham mưu)?", options: ["Sắc lệnh 34/SL", "Sắc lệnh 102/SL", "Sắc lệnh 15/SL", "Sắc lệnh 50/SL"], correct: 0, explanation: "Đáp án đúng: A. Sắc lệnh 34/SL" },
+            { text: "Nhiệm vụ chính của các \"Đội quân thợ\" trong giai đoạn tiền khởi nghĩa và Cách mạng tháng Tám là gì?", options: ["Trực tiếp chiến đấu với địch", "Vận chuyển lương thực", "Xây dựng lán trại, rèn đúc vũ khí, hướng dẫn nhân dân phá hoại đường sá", "Làm công tác binh vận"], correct: 2, explanation: "Đáp án đúng: C. Xây dựng lán trại, rèn đúc vũ khí, hướng dẫn nhân dân phá hoại đường sá" },
+            { text: "Trong 60 ngày đêm khói lửa tại Hà Nội (1946), Bộ đội Công binh đã sử dụng chiến thuật gì để ngăn cản địch?", options: ["Chiến tranh du kích", "Tiêu thổ kháng chiến, xây dựng vật cản, trận địa đường phố", "Đánh vận động chiến", "Pháo kích từ xa"], correct: 1, explanation: "Đáp án đúng: B. Tiêu thổ kháng chiến, xây dựng vật cản, trận địa đường phố" },
+            { text: "Chiến dịch nào vào năm 1947 mà Bộ đội Công binh đã góp phần bẻ gãy chiến lược \"đánh nhanh, thắng nhanh\" của Pháp?", options: ["Chiến dịch Biên giới", "Chiến dịch Việt Bắc", "Chiến dịch Hoàng Hoa Thám", "Chiến dịch Tây Bắc"], correct: 1, explanation: "Đáp án đúng: B. Chiến dịch Việt Bắc" },
+            { text: "Khẩu hiệu hành động bắt đầu hình thành rõ nét của Bộ đội Công binh trong giai đoạn 1948-1950 là gì?", options: ["Quyết tử cho Tổ quốc quyết sinh", "Đi trước, về sau", "Thần tốc, táo bạo", "Xẻ dọc Trường Sơn đi cứu nước"], correct: 1, explanation: "Đáp án đúng: B. Đi trước, về sau" },
+            { text: "Bức thư Bác Hồ gửi Hội nghị Cán bộ Công binh toàn quốc lần thứ nhất vào năm nào?", options: ["Năm 1945", "Năm 1946", "Năm 1947", "Năm 1948"], correct: 1, explanation: "Đáp án đúng: B. Năm 1946" },
+            { text: "Lá cờ thêu bốn chữ vàng \"MỞ ĐƯỜNG THẮNG LỢI\" được Bác Hồ tặng cho Bộ đội Công binh sau chiến dịch nào?", options: ["Chiến dịch Biên giới", "Chiến dịch Tây Bắc", "Chiến dịch Điện Biên Phủ", "Chiến dịch Thượng Lào"], correct: 1, explanation: "Đáp án đúng: B. Chiến dịch Tây Bắc" },
+            { text: "Bác Hồ tặng lá cờ \"MỞ ĐƯỜNG THẮNG LỢI\" cho Bộ đội Công binh vào năm nào?", options: ["Năm 1950", "Năm 1951", "Năm 1952", "Năm 1954"], correct: 2, explanation: "Đáp án đúng: C. Năm 1952" },
+            { text: "Trong chiến cuộc Đông Xuân 1953-1954, Bộ đội Công binh đã bắc cầu phao nào bằng vật liệu tại chỗ để Đại đoàn 308 vượt sông Đà?", options: ["Cầu phao Bến Thủy", "Cầu phao Tạ Khoa", "Cầu phao Hàm Rồng", "Cầu phao Chương Dương"], correct: 1, explanation: "Đáp án đúng: B. Cầu phao Tạ Khoa" },
+            { text: "Tại chiến dịch Điện Biên Phủ, nhiệm vụ đầu tiên được xem là kỳ tích về ý chí của Bộ đội Công binh là gì?", options: ["Đào hầm sở chỉ huy", "Mở đường kéo pháo", "Rà phá bom mìn", "Xây dựng sân bay"], correct: 1, explanation: "Đáp án đúng: B. Mở đường kéo pháo" },
+            { text: "Trong chiến dịch Điện Biên Phủ, Bộ đội Công binh đã xây dựng hệ thống gì để vây lấn, chia cắt quân địch?", options: ["Hệ thống lô cốt bê tông", "Hệ thống hàng rào", "Hệ thống giao thông hào, chiến hào", "Hệ thống tháp canh"], correct: 2, explanation: "Đáp án đúng: C. Hệ thống giao thông hào, chiến hào" },
+            { text: "Khối bộc phá được kích nổ tại đồi A1 (Điện Biên Phủ) có trọng lượng khoảng bao nhiêu?", options: ["500kg", "1.000kg (chính xác là 960kg)", "2.000kg", "200kg"], correct: 1, explanation: "Đáp án đúng: B. 1.000kg (chính xác là 960kg)" },
+            { text: "Ngày chiến thắng Điện Biên Phủ là ngày 07/5 của năm nào?", options: ["Năm 1953", "Năm 1954", "Năm 1955", "Năm 1956"], correct: 1, explanation: "Đáp án đúng: B. Năm 1954" },
+            { text: "Đoàn 559 (Bộ đội Trường Sơn) được thành lập vào năm nào, mở đầu cho tuyến đường mòn Hồ Chí Minh huyền thoại?", options: ["Năm 1954", "Năm 1959", "Năm 1960", "Năm 1965"], correct: 1, explanation: "Đáp án đúng: B. Năm 1959" },
+            { text: "Khẩu hiệu nổi tiếng của Bộ đội Công binh trên mặt trận giao thông vận tải miền Bắc thời chống Mỹ là gì?", options: ["Xe chưa qua nhà không tiếc", "Sống bám cầu, bám đường, chết kiên cường dũng cảm", "Một tấc không đi, một ly không rời", "Nhằm thẳng quân thù mà bắn"], correct: 1, explanation: "Đáp án đúng: B. Sống bám cầu, bám đường, chết kiên cường dũng cảm" },
+            { text: "Để vận chuyển xăng dầu vào chiến trường miền Nam, Bộ đội Công binh Trường Sơn đã xây dựng hệ thống gì?", options: ["Đường sắt xuyên rừng", "Hệ thống đường ống xăng dầu", "Đội xe bồn chuyên dụng", "Hệ thống kênh rạch"], correct: 1, explanation: "Đáp án đúng: B. Hệ thống đường ống xăng dầu" },
+            { text: "Trong cuộc Tổng tiến công và nổi dậy Mùa Xuân 1975, yếu tố nào được bảo đảm bằng xương máu của Công binh?", options: ["Yếu tố bí mật", "Yếu tố ngoại giao", "Yếu tố thần tốc", "Yếu tố hậu cần"], correct: 2, explanation: "Đáp án đúng: C. Yếu tố thần tốc" },
+            { text: "Cây cầu nào đã được Công binh Sư đoàn 473 lao dầm thần tốc để bảo đảm cho Sư đoàn 325 giải phóng Đà Nẵng năm 1975?", options: ["Cầu Rồng", "Cầu Mụ Bố", "Cầu Tràng Tiền", "Cầu Hiền Lương"], correct: 1, explanation: "Đáp án đúng: B. Cầu Mụ Bố" },
+            { text: "Tại hướng Tây Nam Sài Gòn năm 1975, Bộ đội Công binh đã dùng phương tiện gì đưa Đoàn 232 vượt sông Vàm Cỏ Đông?", options: ["Cầu phao PMP", "Phà GSP", "Thuyền gỗ, ghe xuồng của nhân dân", "Trực thăng vận"], correct: 2, explanation: "Đáp án đúng: C. Thuyền gỗ, ghe xuồng của nhân dân" },
+            { text: "Trong chiến tranh bảo vệ biên giới Tây Nam, Bộ đội Công binh đã giúp nước bạn Campuchia thoát khỏi chế độ nào?", options: ["Chế độ thực dân cũ", "Chế độ diệt chủng Pôn Pốt", "Chế độ phong kiến", "Chế độ phát xít"], correct: 1, explanation: "Đáp án đúng: B. Chế độ diệt chủng Pôn Pốt" },
+            { text: "Tuyến phòng thủ biên giới Thái Lan - Campuchia mà Bộ đội Công binh xây dựng giúp bạn được gọi là gì?", options: ["Tuyến K1", "Tuyến K5", "Tuyến Củ Chi", "Tuyến Mê Kông"], correct: 1, explanation: "Đáp án đúng: B. Tuyến K5" },
+            { text: "Chiến tranh bảo vệ biên giới phía Bắc nổ ra vào tháng 2 của năm nào?", options: ["Năm 1975", "Năm 1978", "Năm 1979", "Năm 1980"], correct: 2, explanation: "Đáp án đúng: C. Năm 1979" },
+            { text: "Tại mặt trận Vị Xuyên (Hà Giang), nhiệm vụ chính của Bộ đội Công binh là gì?", options: ["Xây dựng cầu phao vượt sông", "Khoét núi làm hầm, xây dựng công sự kiên cố trên đá", "Lái xe tăng tấn công", "Trinh sát đường không"], correct: 1, explanation: "Đáp án đúng: B. Khoét núi làm hầm, xây dựng công sự kiên cố trên đá" },
+            { text: "Công trình thủy điện lớn nhất Đông Nam Á thời điểm 1979-1989 mà Bộ đội Công binh tham gia xây dựng là gì?", options: ["Thủy điện Sơn La", "Thủy điện Hòa Bình", "Thủy điện Yaly", "Thủy điện Lai Châu"], correct: 1, explanation: "Đáp án đúng: B. Thủy điện Hòa Bình" },
+            { text: "Công trình Nhà giàn DK1/15 được hoàn thành nâng cấp vào năm nào?", options: ["Năm 2000", "Năm 2011", "Năm 2015", "Năm 2020"], correct: 1, explanation: "Đáp án đúng: B. Năm 2011" },
+            { text: "Cầu phao qua sông Hồng được Bộ đội Công binh bắc để đảm bảo giao thông khi sửa chữa cầu Thăng Long vào năm nào?", options: ["Năm 2005", "Năm 2009-2010", "Năm 2015", "Năm 2018"], correct: 1, explanation: "Đáp án đúng: B. Năm 2009-2010" },
+            { text: "Vụ giải cứu 12 công nhân sập hầm thủy điện Đạ Dâng diễn ra vào năm nào?", options: ["Năm 2010", "Năm 2012", "Năm 2014", "Năm 2016"], correct: 2, explanation: "Đáp án đúng: C. Năm 2014" },
+            { text: "Phương pháp quyết định giúp giải cứu thành công nạn nhân vụ sập hầm Đạ Dâng là gì?", options: ["Đào từ cửa hầm chính vào", "Khoan từ trên đỉnh đồi xuống", "Mở đường hầm ngách (đi tắt) đâm ngang vào vị trí nạn nhân", "Bơm nước ra ngoài"], correct: 2, explanation: "Đáp án đúng: C. Mở đường hầm ngách (đi tắt) đâm ngang vào vị trí nạn nhân" },
+            { text: "Việt Nam chính thức cử Đội Công binh số 1 tham gia Phái bộ Gìn giữ hòa bình Liên Hợp Quốc vào năm nào?", options: ["Năm 2018", "Năm 2020", "Năm 2022", "Năm 2024"], correct: 2, explanation: "Đáp án đúng: C. Năm 2022" },
+            { text: "Đội Công binh Việt Nam tham gia Phái bộ An ninh lâm thời của Liên Hợp Quốc tại khu vực nào?", options: ["Nam Sudan", "Cộng hòa Trung Phi", "Abyei", "Haiti"], correct: 2, explanation: "Đáp án đúng: C. Abyei" },
+            { text: "Năm 2023, Bộ đội Công binh Việt Nam đã tham gia cứu hộ thảm họa động đất tại quốc gia nào?", options: ["Nhật Bản", "Thổ Nhĩ Kỳ", "Nepal", "Indonesia"], correct: 1, explanation: "Đáp án đúng: B. Thổ Nhĩ Kỳ" },
+            { text: "Tính đến hết năm 2024, Binh chủng Công binh đã vinh dự được tuyên dương danh hiệu Anh hùng Lực lượng Vũ trang Nhân dân mấy lần?", options: ["1 lần", "2 lần", "3 lần", "4 lần"], correct: 1, explanation: "Đáp án đúng: B. 2 lần" },
+            { text: "Binh chủng Công binh đón nhận danh hiệu Anh hùng LLVTND lần thứ hai vào năm nào?", options: ["Năm 2000", "Năm 2004", "Năm 2010", "Năm 2014"], correct: 3, explanation: "Đáp án đúng: D. Năm 2014" },
+            { text: "Tính đến hết năm 2024, toàn Binh chủng có bao nhiêu cá nhân được phong tặng, truy tặng danh hiệu Anh hùng LLVTND?", options: ["50 cá nhân", "60 cá nhân", "70 cá nhân", "80 cá nhân"], correct: 3, explanation: "Đáp án đúng: D. 80 cá nhân" },
+            { text: "Loại khí tài hiện đại nào được mệnh danh là \"khủng long trên sông\" giúp Bộ đội Công binh đưa xe tăng vượt sông?", options: ["Phà GSP", "Xuồng cao tốc", "Bè mảng", "Tàu vận tải"], correct: 0, explanation: "Đáp án đúng: A. Phà GSP" },
+            { text: "Bác Hồ đã bí mật đến thăm bộ đội Công binh diễn tập bắc cầu phao sông Hồng vào năm nào?", options: ["Năm 1960", "Năm 1965", "Năm 1966", "Năm 1968"], correct: 2, explanation: "Đáp án đúng: C. Năm 1966" },
+            { text: "Địa hình chủ yếu tại mặt trận Vị Xuyên mà Công binh phải thi công hầm hào là gì?", options: ["Đất thịt", "Cát", "Đá tai mèo", "Đầm lầy"], correct: 2, explanation: "Đáp án đúng: C. Đá tai mèo" },
+            { text: "Chiến dịch nào năm 1950 đánh dấu bước ngoặt Công binh từ \"phá hoại\" sang \"bảo đảm\" giao thông quy mô lớn?", options: ["Chiến dịch Việt Bắc", "Chiến dịch Biên giới", "Chiến dịch Hòa Bình", "Chiến dịch Tây Bắc"], correct: 1, explanation: "Đáp án đúng: B. Chiến dịch Biên giới" },
+            { text: "Câu nói \"Mạch máu giao thông\" được Bác Hồ ví von để nói về tầm quan trọng của cái gì?", options: ["Các dòng sông", "Cầu đường", "Hệ thống thông tin liên lạc", "Hệ thống đường ống"], correct: 1, explanation: "Đáp án đúng: B. Cầu đường" },
+            { text: "Hội nghị quân sự cách mạng Bắc Kỳ (tháng 4/1945) đã tổ chức tại đâu?", options: ["Tân Trào, Tuyên Quang", "Hiệp Hòa, Bắc Giang", "Pác Bó, Cao Bằng", "Định Hóa, Thái Nguyên"], correct: 1, explanation: "Đáp án đúng: B. Hiệp Hòa, Bắc Giang" },
+            { text: "Một trong những quyết định quan trọng của Hội nghị quân sự cách mạng Bắc Kỳ đặt nền móng cho Binh chủng Công binh là gì?", options: ["Thành lập các đội du kích", "Thành lập các đội quân thợ", "Thành lập các đội tự vệ đỏ", "Thành lập các đội tải lương"], correct: 1, explanation: "Đáp án đúng: B. Thành lập các đội quân thợ" },
+            { text: "Theo Sắc lệnh 34/SL, Cục Công binh thuộc cơ quan nào?", options: ["Bộ Quốc phòng", "Bộ Tổng Tham mưu", "Tổng cục Chính trị", "Tổng cục Hậu cần"], correct: 1, explanation: "Đáp án đúng: B. Bộ Tổng Tham mưu" },
+            { text: "Trong những ngày đầu Toàn quốc kháng chiến tại Hà Nội, Bộ đội Công binh đã phá sập những cây cầu nào để ngăn địch?", options: ["Cầu Long Biên, Cầu Đuống", "Cầu Chương Dương, Cầu Thăng Long", "Cầu Hàm Rồng, Cầu Ghép", "Cầu Hiền Lương, Cầu Thanh Trì"], correct: 0, explanation: "Đáp án đúng: A. Cầu Long Biên, Cầu Đuống" },
+            { text: "Hình ảnh \"Đắp cản Bến Cát\" trên đường 13 (năm 1950) diễn ra ở chiến trường nào?", options: ["Việt Bắc", "Tây Bắc", "Nam Bộ", "Tây Nguyên"], correct: 2, explanation: "Đáp án đúng: C. Nam Bộ" },
+            { text: "Trong Chiến dịch Việt Bắc Thu - Đông 1947, Bộ đội Công binh đã phá hoại các tuyến sông nào để ngăn tàu địch?", options: ["Sông Hồng, Sông Đà", "Sông Lô, Sông Gâm", "Sông Mã, Sông Chu", "Sông Cầu, Sông Thương"], correct: 1, explanation: "Đáp án đúng: B. Sông Lô, Sông Gâm" },
+            { text: "Trong Chiến dịch Biên giới 1950, loại cầu nào được Công binh sáng tạo sử dụng phổ biến tại Phiềng Cọn?", options: ["Cầu bê tông cốt thép", "Cầu phao tre nứa", "Cầu treo dây văng", "Cầu dầm thép"], correct: 1, explanation: "Đáp án đúng: B. Cầu phao tre nứa" },
+            { text: "Con đường được Bộ đội Công binh mở mới và sửa chữa chủ yếu trong Chiến dịch Tây Bắc (1952) nối liền hai địa danh nào?", options: ["Hà Nội - Hòa Bình", "Yên Bái - Sơn La", "Thái Nguyên - Bắc Kạn", "Lạng Sơn - Cao Bằng"], correct: 1, explanation: "Đáp án đúng: B. Yên Bái - Sơn La" },
+            { text: "Vật liệu chủ yếu để làm Cầu phao Tạ Khoa trong chiến cuộc Đông Xuân 1953-1954 là gì?", options: ["Phao thép", "Tre, gỗ, phuy xăng rỗng", "Bê tông", "Nhựa"], correct: 1, explanation: "Đáp án đúng: B. Tre, gỗ, phuy xăng rỗng" },
+            { text: "Trung đoàn Công binh nào đóng vai trò nòng cốt trong nhiệm vụ mở đường kéo pháo tại Điện Biên Phủ?", options: ["Trung đoàn 151", "Trung đoàn 209", "Trung đoàn 174", "Trung đoàn 98"], correct: 0, explanation: "Đáp án đúng: A. Trung đoàn 151" },
+            { text: "Tại Điện Biên Phủ, hệ thống giao thông hào của ta được ví như hình ảnh gì vây hãm quân địch?", options: ["Mạng nhện", "Vòi bạch tuộc", "Lưới thép", "Vòng kim cô"], correct: 1, explanation: "Đáp án đúng: B. Vòi bạch tuộc" },
+            { text: "Những địa danh nào tại Điện Biên Phủ được mệnh danh là \"túi bom\", nơi Công binh phải ngày đêm phá bom nổ chậm?", options: ["Mường Phăng, Him Lam", "Ngã ba Cò Nòi, Đèo Pha Đin", "Hồng Cúm, Độc Lập", "Bản Kéo, Mường Thanh"], correct: 1, explanation: "Đáp án đúng: B. Ngã ba Cò Nòi, Đèo Pha Đin" },
+            { text: "Ai là người trực tiếp chỉ huy việc đào hầm ngầm và đặt khối bộc phá tại đồi A1?", options: ["Phùng Thế Tài", "Nguyễn Phú Xuyên Khung", "Hoàng Cầm", "Lê Trọng Tấn"], correct: 1, explanation: "Đáp án đúng: B. Nguyễn Phú Xuyên Khung" },
+            { text: "Trong kháng chiến chống Mỹ, Công binh miền Bắc đã sáng tạo ra loại cầu gì để tránh máy bay trinh sát của địch?", options: ["Cầu treo", "Cầu ngầm (dưới mặt nước)", "Cầu vòm", "Cầu quay"], correct: 1, explanation: "Đáp án đúng: B. Cầu ngầm (dưới mặt nước)" },
+            { text: "Năm 1972, đế quốc Mỹ đã dùng loại vũ khí gì để phong tỏa cảng biển Hải Phòng mà Công binh Hải quân phải rà phá?", options: ["Bom Napalm", "Thủy lôi, bom từ trường", "Bom bi", "Chất độc hóa học"], correct: 1, explanation: "Đáp án đúng: B. Thủy lôi, bom từ trường" },
+            { text: "Căn cứ Hầm D67 (Hoàng thành Thăng Long) được Bộ đội Công binh xây dựng nhằm mục đích gì?", options: ["Kho chứa vũ khí", "Hầm chỉ huy cho Bộ Chính trị và Quân ủy Trung ương", "Bệnh viện dã chiến", "Nơi trú ẩn cho nhân dân"], correct: 1, explanation: "Đáp án đúng: B. Hầm chỉ huy cho Bộ Chính trị và Quân ủy Trung ương" },
+            { text: "Hệ thống Đường mòn Hồ Chí Minh có tổng chiều dài ước tính khoảng bao nhiêu ki-lô-mét?", options: ["10.000 km", "15.000 km", "20.000 km", "25.000 km"], correct: 2, explanation: "Đáp án đúng: C. 20.000 km" },
+            { text: "Tại Chiến dịch Hồ Chí Minh 1975, Sư đoàn 473 đã lao cầu Mụ Bố qua sông nào?", options: ["Sông Hương", "Sông Hàn", "Sông Thu Bồn", "Sông Trà Khúc"], correct: 2, explanation: "Đáp án đúng: C. Sông Thu Bồn" },
+            { text: "Trong chiến tranh biên giới Tây Nam, khí tài vượt sông hiện đại nào được sử dụng để đưa xe tăng qua sông Pông Chăm?", options: ["Phà GSP, cầu phao PMP", "Thuyền độc mộc", "Bè mảng tự chế", "Cầu treo"], correct: 0, explanation: "Đáp án đúng: A. Phà GSP, cầu phao PMP" },
+            { text: "\"K5\" là tên gọi tắt của công trình phòng thủ nào do Bộ đội Công binh xây dựng tại Campuchia?", options: ["Tuyến phòng thủ biên giới Việt Nam - Campuchia", "Tuyến phòng thủ biên giới Campuchia - Thái Lan", "Tuyến phòng thủ quanh Pnôm Pênh", "Tuyến phòng thủ Biển Hồ"], correct: 1, explanation: "Đáp án đúng: B. Tuyến phòng thủ biên giới Campuchia - Thái Lan" },
+            { text: "Địa danh nào ở mặt trận biên giới phía Bắc (Hà Giang) được ví là \"Lò vôi thế kỷ\"?", options: ["Đồng Đăng", "Vị Xuyên", "Trà Lĩnh", "Mường Khương"], correct: 1, explanation: "Đáp án đúng: B. Vị Xuyên" },
+            { text: "Các cao điểm 1509, 685, 772 gắn liền với chiến công giữ chốt của Công binh tại mặt trận nào?", options: ["Lạng Sơn", "Cao Bằng", "Hà Giang (Vị Xuyên)", "Lào Cai"], correct: 2, explanation: "Đáp án đúng: C. Hà Giang (Vị Xuyên)" },
+            { text: "Trong xây dựng kinh tế thời kỳ 1979-1989, các Lữ đoàn 239, 249 đã tham gia xây dựng công trình trọng điểm nào?", options: ["Thủy điện Trị An", "Thủy điện Hòa Bình", "Cầu Mỹ Thuận", "Đường dây 500kV"], correct: 1, explanation: "Đáp án đúng: B. Thủy điện Hòa Bình" },
+            { text: "Lữ đoàn Công binh 293 (Công binh Hải quân) nổi tiếng với nhiệm vụ xây dựng công trình gì?", options: ["Đường cao tốc", "Các công trình trên đảo và thềm lục địa (Trường Sa, DK1)", "Sân bay quốc tế", "Cầu dây văng"], correct: 1, explanation: "Đáp án đúng: B. Các công trình trên đảo và thềm lục địa (Trường Sa, DK1)" },
+            { text: "Cầu phao PMP bắc qua sông Hồng phục vụ sửa chữa cầu Thăng Long (2009-2010) có chiều dài bao nhiêu?", options: ["500m", "1.000m", "1.500m", "2.000m"], correct: 2, explanation: "Đáp án đúng: C. 1.500m" },
+            { text: "Chiến dịch giải cứu sập hầm thủy điện Đạ Dâng (Lâm Đồng) diễn ra vào năm nào?", options: ["Năm 2012", "Năm 2013", "Năm 2014", "Năm 2015"], correct: 2, explanation: "Đáp án đúng: C. Năm 2014" },
+            { text: "Thời gian Bộ đội Công binh hoàn thành việc giải cứu 12 nạn nhân tại hầm Đạ Dâng là bao nhiêu giờ?", options: ["48 giờ", "72 giờ", "82 giờ", "100 giờ"], correct: 2, explanation: "Đáp án đúng: C. 82 giờ" },
+            { text: "Đơn vị Công binh nào là lực lượng nòng cốt trong cuộc giải cứu hầm Đạ Dâng và sau đó được phong Anh hùng LLVTND?", options: ["Lữ đoàn 249", "Lữ đoàn 229", "Lữ đoàn 293", "Lữ đoàn 270"], correct: 2, explanation: "Đáp án đúng: C. Lữ đoàn 293" },
+            { text: "Năm 2020, Bộ đội Công binh đã tham gia tìm kiếm cứu nạn tại thảm họa sạt lở nào ở miền Trung?", options: ["Hướng Hóa (Quảng Trị)", "Rào Trăng 3 (Thừa Thiên Huế)", "Trà Leng (Quảng Nam)", "Phước Sơn (Quảng Nam)"], correct: 1, explanation: "Đáp án đúng: B. Rào Trăng 3 (Thừa Thiên Huế)" },
+            { text: "Đội Công binh số 1 của Việt Nam tham gia Gìn giữ hòa bình LHQ tại Abyei đã thực hiện kỳ tích gì về hạ tầng?", options: ["Xây dựng đập thủy điện", "Sửa chữa, nâng cấp Sân bay", "Xây dựng cầu vượt biển", "Làm đường sắt"], correct: 1, explanation: "Đáp án đúng: B. Sửa chữa, nâng cấp Sân bay" },
+            { text: "Bác Hồ đã đến thăm bộ đội công binh diễn tập bắc cầu phao sông Hồng tại bến Mễ Sở vào năm nào?", options: ["Năm 1965", "Năm 1966", "Năm 1967", "Năm 1968"], correct: 1, explanation: "Đáp án đúng: B. Năm 1966" },
+            { text: "Trong thư gửi Hội nghị Công binh năm 1946, Bác Hồ đã căn dặn công binh phải có tinh thần gì để khắc phục việc \"mới mẻ, chưa quen\"?", options: ["Tinh thần kỷ luật", "Tinh thần sáng tạo", "Tinh thần đoàn kết", "Tinh thần dũng cảm"], correct: 1, explanation: "Đáp án đúng: B. Tinh thần sáng tạo" },
+            { text: "Đại tướng Võ Nguyên Giáp đã viết Lời tựa cho cuốn sách lịch sử nào của Binh chủng?", options: ["Lịch sử Quân đội nhân dân Việt Nam", "Lịch sử Công binh Việt Nam (1945-2005)", "Lịch sử kháng chiến chống Pháp", "Nghệ thuật quân sự Việt Nam"], correct: 1, explanation: "Đáp án đúng: B. Lịch sử Công binh Việt Nam (1945-2005)" },
+            { text: "Sự kiện chính trị trọng đại nào năm 2015 mà Bộ đội Công binh tham gia bảo đảm an ninh từ trong lòng đất?", options: ["Đại hội Đảng toàn quốc lần thứ XII", "Lễ kỷ niệm 70 năm Cách mạng tháng Tám và Quốc khánh 2/9", "Hội nghị APEC", "Bầu cử Quốc hội"], correct: 1, explanation: "Đáp án đúng: B. Lễ kỷ niệm 70 năm Cách mạng tháng Tám và Quốc khánh 2/9" },
+            { text: "Số lượng tập thể thuộc Binh chủng Công binh được phong tặng danh hiệu Anh hùng LLVTND (tính đến hết 2024) là bao nhiêu?", options: ["20 tập thể", "23 tập thể", "25 tập thể", "30 tập thể"], correct: 1, explanation: "Đáp án đúng: B. 23 tập thể" },
+            { text: "Binh chủng Công binh vinh dự đón nhận danh hiệu Anh hùng LLVTND lần thứ nhất vào năm nào?", options: ["Năm 1975", "Năm 1976", "Năm 1979", "Năm 1989"], correct: 1, explanation: "Đáp án đúng: B. Năm 1976" },
+            { text: "Khẩu hiệu truyền thống \"Mở đường thắng lợi\" được Bác Hồ trao tặng vào thời điểm kết thúc chiến dịch nào?", options: ["Chiến dịch Biên giới", "Chiến dịch Tây Bắc", "Chiến dịch Điện Biên Phủ", "Chiến dịch Đông Xuân"], correct: 1, explanation: "Đáp án đúng: B. Chiến dịch Tây Bắc" },
+            { text: "\"Tường đồng vách sắt\" là cụm từ thường dùng để ca ngợi hệ thống gì do Công binh xây dựng?", options: ["Hệ thống cầu đường", "Hệ thống hầm hào, công sự phòng thủ", "Hệ thống xe máy công binh", "Hệ thống thông tin liên lạc"], correct: 1, explanation: "Đáp án đúng: B. Hệ thống hầm hào, công sự phòng thủ" },
+            { text: "Trong chiến dịch Việt Bắc Thu - Đông 1947, Binh chủng Công binh đã thực hiện nhiệm vụ gì trên sông Lô, sông Gâm?", options: ["Xây dựng cảng sông", "Phá hoại, tạo chướng ngại vật ngăn tàu địch", "Khơi thông dòng chảy", "Nuôi trồng thủy sản"], correct: 1, explanation: "Đáp án đúng: B. Phá hoại, tạo chướng ngại vật ngăn tàu địch" },
+            { text: "Tuyến đường nào được mệnh danh là \"con đường chết\" đối với quân Pháp trong Chiến dịch Biên giới 1950 mà Công binh ta đã tham gia đánh địch?", options: ["Đường số 1", "Đường số 4 (RC4)", "Đường số 5", "Đường số 6"], correct: 1, explanation: "Đáp án đúng: B. Đường số 4 (RC4)" },
+            { text: "Trong thư gửi Hội nghị Cán bộ Công binh năm 1946, Bác Hồ đã khuyên anh em công binh phải lấy tinh thần gì để làm việc?", options: ["Tinh thần kỷ luật thép", "Tinh thần sáng tạo", "Tinh thần lạc quan", "Tinh thần tương thân tương ái"], correct: 1, explanation: "Đáp án đúng: B. Tinh thần sáng tạo" },
+            { text: "\"Ngàn cân treo sợi tóc\" là cụm từ dùng để chỉ tình thế của đất nước ta vào giai đoạn nào?", options: ["Trước năm 1930", "Sau Cách mạng tháng Tám năm 1945", "Năm 1954", "Năm 1975"], correct: 1, explanation: "Đáp án đúng: B. Sau Cách mạng tháng Tám năm 1945" },
+            { text: "Trong kháng chiến chống Pháp, khẩu hiệu nào thể hiện sự chuyển dịch nhiệm vụ từ \"phá hoại\" sang \"bảo đảm\" của Công binh?", options: ["Quyết chiến quyết thắng", "Đi trước, về sau", "Đánh chắc, tiến chắc", "Thần tốc, táo bạo"], correct: 1, explanation: "Đáp án đúng: B. Đi trước, về sau" },
+            { text: "Đơn vị Công binh nào là nòng cốt mở đường kéo pháo trong Chiến dịch Điện Biên Phủ?", options: ["Trung đoàn 151", "Đại đoàn 308", "Đại đoàn 312", "Trung đoàn 209"], correct: 0, explanation: "Đáp án đúng: A. Trung đoàn 151" },
+            { text: "Người anh hùng công binh nào đã hy sinh khi phá bom nổ chậm tại Điện Biên Phủ (được nhắc tên trong tài liệu)?", options: ["Phan Đình Giót", "Trần Cừ", "Bế Văn Đàn", "Cù Chính Lan"], correct: 1, explanation: "Đáp án đúng: B. Trần Cừ" },
+            { text: "Tiếng nổ của khối bộc phá đồi A1 đêm 06/5/1954 được coi là hiệu lệnh cho điều gì?", options: ["Bắt đầu chiến dịch", "Đợt tổng công kích cuối cùng", "Kéo pháo ra", "Rút quân"], correct: 1, explanation: "Đáp án đúng: B. Đợt tổng công kích cuối cùng" },
+            { text: "Đường Trường Sơn - Đường mòn Hồ Chí Minh được bắt đầu mở vào năm nào?", options: ["Năm 1955", "Năm 1959", "Năm 1965", "Năm 1968"], correct: 1, explanation: "Đáp án đúng: B. Năm 1959" },
+            { text: "Trong cuộc Tổng tiến công 1975, Sư đoàn Công binh 473 đã lao cầu Mụ Bố để bảo đảm cho cánh quân nào tiến vào Đà Nẵng?", options: ["Quân đoàn 1", "Quân đoàn 2 (cụ thể là Sư đoàn 325)", "Quân đoàn 3", "Quân đoàn 4"], correct: 1, explanation: "Đáp án đúng: B. Quân đoàn 2 (cụ thể là Sư đoàn 325)" },
+            { text: "Chiến tranh bảo vệ biên giới Tây Nam bắt đầu bùng nổ mạnh mẽ vào giai đoạn nào?", options: ["Ngay sau năm 1954", "Giai đoạn 1977-1978", "Năm 1986", "Năm 1990"], correct: 1, explanation: "Đáp án đúng: B. Giai đoạn 1977-1978" },
+            { text: "Một \"đặc sản\" chiến tranh của Pôn Pốt gây khó khăn lớn nhất cho Công binh Việt Nam tại Campuchia là gì?", options: ["Xe tăng hạng nặng", "Mìn và vật cản gài dày đặc", "Pháo tầm xa", "Máy bay ném bom"], correct: 1, explanation: "Đáp án đúng: B. Mìn và vật cản gài dày đặc" },
+            { text: "Công trình \"K5\" tại Campuchia thực chất là gì?", options: ["Hệ thống thủy lợi", "Tuyến phòng thủ biên giới ngăn tàn quân Pôn Pốt", "Nhà máy điện", "Sân bay quốc tế"], correct: 1, explanation: "Đáp án đúng: B. Tuyến phòng thủ biên giới ngăn tàn quân Pôn Pốt" },
+            { text: "Mặt trận Vị Xuyên (Hà Giang) trong chiến tranh biên giới phía Bắc diễn ra ác liệt nhất vào thập kỷ nào?", options: ["Thập kỷ 60", "Thập kỷ 70", "Thập kỷ 80 (1979-1989)", "Thập kỷ 90"], correct: 2, explanation: "Đáp án đúng: C. Thập kỷ 80 (1979-1989)" },
+            { text: "Năm 2014, Binh chủng Công binh đón nhận danh hiệu gì?", options: ["Huân chương Sao vàng", "Anh hùng Lực lượng vũ trang nhân dân (lần 2)", "Huân chương Hồ Chí Minh", "Huân chương Quân công"], correct: 1, explanation: "Đáp án đúng: B. Anh hùng Lực lượng vũ trang nhân dân (lần 2)" },
+            { text: "Sự kiện sập nhịp dẫn cầu Cần Thơ năm 2007 có sự tham gia cứu hộ của lực lượng nào?", options: ["Công binh Quân khu 9", "Công binh Quân khu 1", "Công binh Quân khu 2", "Công binh Quân khu 3"], correct: 0, explanation: "Đáp án đúng: A. Công binh Quân khu 9" },
+            { text: "Số lượng bom đạn còn sót lại sau chiến tranh tại Việt Nam ước tính khoảng bao nhiêu?", options: ["Vài ngàn tấn", "Hàng trăm ngàn tấn", "Rất ít", "Đã được dọn sạch"], correct: 1, explanation: "Đáp án đúng: B. Hàng trăm ngàn tấn" },
+            { text: "Binh chủng Công binh đã tham gia bảo đảm an ninh cho sự kiện quốc tế nào tại Đà Nẵng năm 2017?", options: ["SEA Games", "Hội nghị APEC", "Hội nghị ASEAN", "Lễ hội Pháo hoa"], correct: 1, explanation: "Đáp án đúng: B. Hội nghị APEC" },
+            { text: "Thảm họa sạt lở đất tại Rào Trăng 3 (2020) thuộc tỉnh nào?", options: ["Quảng Trị", "Thừa Thiên Huế", "Quảng Nam", "Hà Tĩnh"], correct: 1, explanation: "Đáp án đúng: B. Thừa Thiên Huế" },
+            { text: "Tổng số tập thể thuộc Binh chủng Công binh được phong tặng Anh hùng LLVTND là bao nhiêu (tính đến hết 2024)?", options: ["20 tập thể", "21 tập thể", "22 tập thể", "23 tập thể"], correct: 3, explanation: "Đáp án đúng: D. 23 tập thể" },
+            { text: "Tổng số cá nhân thuộc Binh chủng Công binh được phong tặng, truy tặng Anh hùng LLVTND là bao nhiêu (tính đến hết 2024)?", options: ["60 cá nhân", "70 cá nhân", "80 cá nhân", "90 cá nhân"], correct: 2, explanation: "Đáp án đúng: C. 80 cá nhân" },
+            { text: "Loại xe thiết giáp công binh thường dùng để bắc cầu, phà vượt sông có tên là gì?", options: ["Xe T-54", "Xe GSP", "Xe BTR-60", "Xe BMP-1"], correct: 1, explanation: "Đáp án đúng: B. Xe GSP" },
+            { text: "Hình ảnh \"Xẻ dọc Trường Sơn đi cứu nước\" gắn liền với giai đoạn lịch sử nào của Công binh?", options: ["Kháng chiến chống Pháp (1946-1954)", "Kháng chiến chống Mỹ (1954-1975)", "Chiến tranh bảo vệ biên giới (1979-1989)", "Thời kỳ Đổi mới (1986-nay)"], correct: 1, explanation: "Đáp án đúng: B. Kháng chiến chống Mỹ (1954-1975)" }
+        ];
+
+        /* --- QUẢN LÝ TRẠNG THÁI GAME --- */
+        let fullQuestionBank = baseQuestions.map((q, i) => ({ ...q, id: `q_${i}` }));
+
+        // Key: 'cb_game_v_official_final_survival_fix_clean_final_14' (Key mới nhất)
+        let managerData = JSON.parse(localStorage.getItem('cb_game_v_official_final_survival_fix_clean_final_14')) || {
+            completedSessions: 0, 
+            usedQuestionIds: [], 
+            hasHint: false
+        };
+
+        let availableQuestions = fullQuestionBank.filter(q => !managerData.usedQuestionIds.includes(q.id));
+        
+        // Reset full ngân hàng câu hỏi khi hết
+        if (availableQuestions.length === 0) {
+            alert("Đã sử dụng hết toàn bộ câu hỏi! Hệ thống sẽ reset lại từ đầu.");
+            managerData.usedQuestionIds = [];
+            availableQuestions = [...fullQuestionBank];
+            saveSession();
+        }
+
+        let currentPlayerIndex = managerData.completedSessions + 1;
+        let isLuckySession = (currentPlayerIndex % 7 === 0);
+        let isBonusSession = (currentPlayerIndex % 3 === 0);
+        let playerHasGift = false; 
+        let playerHasBonus = false;
+
+        let currentScore = 0;
+        let gameStats = { correct: 0, wrong: 0 };
+        const MAX_WRONG_ALLOWED = 0; // Sai 1 câu là chết
+        let timerInterval = null; 
+        let currentQuestionData = null;
+        let isSpinning = false;
+        let currentAngle = 0;
+
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const btnSpin = document.getElementById('spinBtn');
+        const totalSegments = 30;
+        const segmentAngle = (2 * Math.PI) / totalSegments;
+
+        function saveSession() {
+            localStorage.setItem('cb_game_v_official_final_survival_fix_clean_final_14', JSON.stringify(managerData));
+        }
+
+        function finishGameSession() {
+            if(confirm("Xác nhận kết thúc lượt chơi?")) {
+                managerData.completedSessions++;
+                managerData.hasHint = false;
+                saveSession();
+                location.reload();
+            }
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let voices = window.speechSynthesis.getVoices();
+                if (voices.length === 0) {
+                    window.speechSynthesis.onvoiceschanged = () => speakText(text);
+                    return;
+                }
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'vi-VN';
+                let targetVoice = voices.find(v => v.lang.includes('vi') && (v.name.includes('Google') || v.name.includes('HoaiMy') || v.name.toLowerCase().includes('female')));
+                if (!targetVoice) targetVoice = voices.find(v => v.lang.includes('vi'));
+                if (targetVoice) utterance.voice = targetVoice;
+                utterance.pitch = 1.2; 
+                utterance.rate = 0.85;  
+                utterance.volume = 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        const confettiCtx = document.getElementById('confettiCanvas').getContext('2d');
+        let confettiParticles = [];
+        let confettiAnimationId = null;
+
+        function createConfetti() {
+            const colors = ['#33691e', '#689f38', '#fbc02d', '#d32f2f', '#42a5f5'];
+            for (let i = 0; i < 100; i++) {
+                confettiParticles.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight - window.innerHeight,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 10 + 5,
+                    speedY: Math.random() * 3 + 2,
+                    speedX: Math.random() * 2 - 1,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: Math.random() * 10 - 5
+                });
+            }
+        }
+
+        function updateConfetti() {
+            document.getElementById('confettiCanvas').width = window.innerWidth;
+            document.getElementById('confettiCanvas').height = window.innerHeight;
+            confettiCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            confettiParticles.forEach((p, index) => {
+                p.y += p.speedY; p.x += p.speedX; p.rotation += p.rotationSpeed;
+                confettiCtx.save();
+                confettiCtx.translate(p.x, p.y);
+                confettiCtx.rotate(p.rotation * Math.PI / 180);
+                confettiCtx.fillStyle = p.color;
+                confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                confettiCtx.restore();
+                if (p.y > window.innerHeight) confettiParticles.splice(index, 1);
+            });
+            if (confettiParticles.length > 0) confettiAnimationId = requestAnimationFrame(updateConfetti);
+            else cancelAnimationFrame(confettiAnimationId);
+        }
+
+        function fireConfetti() {
+            createConfetti();
+            if (!confettiAnimationId || confettiParticles.length <= 100) updateConfetti();
+        }
+
+        function updateScore(points) {
+            currentScore += points;
+            document.getElementById('scoreValue').innerText = currentScore;
+            
+            // LOGIC CHIẾN THẮNG 80 ĐIỂM
+            if (currentScore >= 80) {
+                soundMgr.playReward();
+                fireConfetti();
+                
+                const btnSpin = document.getElementById('spinBtn');
+                btnSpin.disabled = true;
+                isSpinning = true; 
+
+                const reviewHeader = document.getElementById('reviewHeader');
+                const reviewMsg = document.getElementById('reviewMessage');
+                
+                reviewHeader.style.background = "#2e7d32"; 
+                reviewHeader.innerText = "NHIỆM VỤ HOÀN THÀNH XUẤT SẮC";
+                // Thông điệp chiến thắng khi đủ 80 điểm
+                reviewMsg.innerHTML = `<strong style="font-size: 1.4rem; color: #d32f2f">CHÚC MỪNG ĐỒNG CHÍ ĐÃ NHẬN ĐƯỢC MỘT PHẦN QUÀ ĐẶC BIỆT!</strong><br><br>Đồng chí đã đạt mốc 80 điểm.`;
+                
+                document.getElementById('questionModal').style.display = 'none';
+                document.getElementById('finalScore').innerText = currentScore;
+                document.getElementById('finalCorrect').innerText = gameStats.correct;
+                document.getElementById('finalWrong').innerText = gameStats.wrong;
+
+                setTimeout(() => {
+                    document.getElementById('reviewModal').style.display = 'flex';
+                }, 500); 
+
+                // KHÔNG TỰ ĐỘNG RESET, NGƯỜI CHƠI BẤM NÚT ĐỂ CHƠI TIẾP
+            }
+        }
+
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = canvas.width / 2 - 20; 
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < totalSegments; i++) {
+                const angle = currentAngle + i * segmentAngle;
+                const type = wheelSegments[i].type;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, angle, angle + segmentAngle);
+                ctx.closePath();
+                
+                if (type === 'lucky') ctx.fillStyle = "#fbc02d"; 
+                else if (type === 'gift') ctx.fillStyle = "#ff7043"; 
+                else if (type === 'hint') ctx.fillStyle = "#42a5f5"; 
+                else ctx.fillStyle = (i % 2 === 0) ? "#33691e" : "#689f38"; 
+                
+                ctx.fill();
+                ctx.stroke();
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angle + segmentAngle / 2);
+                ctx.textAlign = "right";
+                ctx.font = "bold 24px Segoe UI"; 
+                ctx.fillStyle = (['lucky', 'gift', 'hint'].includes(type)) ? "#b71c1c" : "#fff";
+                let label = (i + 1).toString();
+                if (type === 'lucky') label = "★"; if (type === 'gift') label = "🎁"; if (type === 'hint') label = "💡";
+                ctx.fillText(label, radius - 30, 10);
+                ctx.restore();
+            }
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+            btnSpin.disabled = true;
+            document.getElementById('statusLog').innerHTML = "Đang hành quân... Chờ lệnh!";
+            
+            soundMgr.playSpin();
+
+            let targetIndex = Math.floor(Math.random() * totalSegments);
+            let targetType = wheelSegments[targetIndex].type;
+
+            // Logic Gift
+            if (targetType === 'gift') {
+                let conditionMet = (gameStats.correct >= 8 && currentScore >= 80);
+                let allowed = true;
+                
+                if (!conditionMet) {
+                    allowed = false;
+                }
+
+                if (!allowed) {
+                     while (wheelSegments[targetIndex].type !== 'question') {
+                         targetIndex = (targetIndex + 1) % totalSegments;
+                     }
+                } else {
+                    playerHasGift = true;
+                }
+            }
+            
+            /* Logic Lucky */
+            if (targetType === 'lucky') {
+                let allowed = true;
+                if (!isBonusSession || playerHasBonus) {
+                    allowed = false;
+                }
+                if (!allowed) {
+                     while (wheelSegments[targetIndex].type !== 'question') {
+                         targetIndex = (targetIndex + 1) % totalSegments;
+                     }
+                } else {
+                     playerHasBonus = true;
+                }
+            }
+
+            saveSession();
+
+            const spinRounds = 5; 
+            const extraSpins = spinRounds * 2 * Math.PI;
+            
+            const segmentCenter = targetIndex * segmentAngle + segmentAngle / 2;
+            let desiredEndAngleRaw = (3 * Math.PI / 2) - segmentCenter;
+            
+            let currentRotation = currentAngle % (2 * Math.PI);
+            if (currentRotation < 0) currentRotation += 2 * Math.PI;
+            
+            let targetRotation = desiredEndAngleRaw % (2 * Math.PI);
+            if (targetRotation < 0) targetRotation += 2 * Math.PI;
+            
+            let delta = targetRotation - currentRotation;
+            if (delta < 0) delta += 2 * Math.PI; 
+            
+            const totalSpin = extraSpins + delta;
+            
+            const duration = 5000;
+            let startTimestamp = null;
+            const startAngle = currentAngle;
+
+            function animate(timestamp) {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = timestamp - startTimestamp;
+                if (progress < duration) {
+                    const easeOut = 1 - Math.pow(1 - progress / duration, 4);
+                    currentAngle = startAngle + totalSpin * easeOut;
+                    drawWheel();
+                    requestAnimationFrame(animate);
+                } else {
+                    currentAngle = startAngle + totalSpin;
+                    drawWheel(); 
+                    finalizeSpin(targetIndex);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        function finalizeSpin(forcedIndex) {
+            isSpinning = false;
+            btnSpin.disabled = false;
+            const segmentType = wheelSegments[forcedIndex].type;
+            handleResult(segmentType, forcedIndex + 1);
+        }
+
+        function handleResult(type, index) {
+            if (type === 'question') {
+                document.getElementById('statusLog').innerHTML = `<span style="color:#2e7d32; font-weight:bold">Dừng tại ô số ${index}:</span>&nbsp; NHIỆM VỤ CHIẾN ĐẤU!`;
+                
+                if (availableQuestions.length === 0) {
+                    alert("Đã dùng hết câu hỏi! Reset kho dữ liệu.");
+                    managerData.usedQuestionIds = [];
+                    availableQuestions = [...fullQuestionBank]; 
+                    saveSession();
+                }
+
+                const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+                const selectedQuestion = availableQuestions[randomIndex];
+                
+                managerData.usedQuestionIds.push(selectedQuestion.id);
+                saveSession();
+
+                availableQuestions.splice(randomIndex, 1);
+                
+                showQuestion(selectedQuestion);
+            } else if (type === 'hint') {
+                document.getElementById('statusLog').innerHTML = `<span style="color:#2196f3; font-weight:bold">Dừng tại ô số ${index}:</span>&nbsp; TRINH SÁT!`;
+                soundMgr.playReward();
+                managerData.hasHint = true;
+                saveSession();
+                showAlert("TRINH SÁT BÁO VỀ", "Bạn nhận được thẻ Trinh Sát! Sử dụng trong câu hỏi tiếp theo để loại bỏ 2 phương án sai.", "💡");
+            } else {
+                document.getElementById('statusLog').innerHTML = `<span style="color:#d32f2f; font-weight:bold">Dừng tại ô số ${index}:</span>&nbsp; ${type.toUpperCase()}!`;
+                soundMgr.playReward();
+                let title = "", icon = "", text = "";
+                if(type === 'lucky') { 
+                    title = "MAY MẮN"; icon = "★"; text = "Cộng ngay 10 điểm!"; 
+                    updateScore(10); fireConfetti();
+                }
+                if(type === 'gift') { 
+                    title = "QUÂN TIẾP VIỆN"; icon = "🎁"; 
+                    // CHỈ HIỆN THÔNG ĐIỆP Ở ĐÂY
+                    text = "Chúc mừng đồng chí nhận được phần quà đặc biệt!<br><br><strong style='color:#d32f2f'>CHÀO MỪNG 80 NĂM THÀNH LẬP BINH CHỦNG CÔNG BINH!</strong>"; 
+                    fireConfetti();
+                }
+                // Nếu chưa đủ 100 điểm thì mới hiện alert thường
+                if (currentScore < 100) {
+                    showAlert(title, text, icon);
+                }
+            }
+        }
+
+        function startCountdown() {
+            let timeLeft = 15; 
+            const timerEl = document.getElementById('timerDisplay');
+            timerEl.innerText = `⏳ ${timeLeft}`;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.innerText = `⏳ ${timeLeft}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function handleTimeOut() {
+            soundMgr.playWrong();
+            speakText("Hết giờ! Đồng chí đã bị loại khỏi cuộc chơi.");
+            
+            gameStats.wrong++;
+            
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            document.getElementById('qResult').innerText = "HẾT GIỜ! NHIỆM VỤ THẤT BẠI.";
+            document.getElementById('qResult').style.color = "#c62828";
+            
+            const correctBtn = allBtns[currentQuestionData.correct];
+            if(correctBtn) correctBtn.classList.add('correct');
+
+            const explanationBox = document.getElementById('explanationBox');
+            const explanationText = document.getElementById('explanationText');
+            if (currentQuestionData.explanation) {
+                explanationText.innerText = currentQuestionData.explanation;
+                explanationBox.style.display = 'block';
+            }
+            
+            const continueBtn = document.getElementById('continueBtn');
+            continueBtn.style.display = 'block';
+            continueBtn.innerText = "KẾT THÚC NHIỆM VỤ";
+            continueBtn.classList.add('game-over-btn');
+            continueBtn.onclick = () => finishGame(true);
+        }
+
+        function useHint() {
+            if (!currentQuestionData) return;
+            const btns = Array.from(document.querySelectorAll('.option-btn'));
+            const correctIndex = currentQuestionData.correct;
+            let wrongIndexes = [0, 1, 2, 3].filter(i => i !== correctIndex);
+            wrongIndexes.sort(() => Math.random() - 0.5);
+            const indexesToHide = wrongIndexes.slice(0, 2);
+            indexesToHide.forEach(idx => { btns[idx].style.visibility = 'hidden'; });
+            managerData.hasHint = false;
+            saveSession();
+            document.getElementById('useHintBtn').style.display = 'none';
+        }
+
+        function showQuestion(data) {
+            currentQuestionData = data;
+            const modal = document.getElementById('questionModal');
+            const qText = document.getElementById('qText');
+            const qOptions = document.getElementById('qOptions');
+            const qResult = document.getElementById('qResult');
+            const closeBtn = document.querySelector('.close-modal-btn');
+            const explanationBox = document.getElementById('explanationBox');
+            const hintBtn = document.getElementById('useHintBtn');
+
+            qText.innerText = data.text;
+            qOptions.innerHTML = '';
+            qResult.innerText = '';
+            closeBtn.style.display = 'none';
+            closeBtn.classList.remove('game-over-btn');
+            closeBtn.innerText = "Tiếp tục hành quân";
+            closeBtn.onclick = closeModal;
+            explanationBox.style.display = 'none';
+
+            hintBtn.style.display = managerData.hasHint ? 'flex' : 'none';
+
+            data.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = `${String.fromCharCode(65+idx)}. ${opt}`;
+                btn.onclick = () => checkAnswer(idx, btn);
+                qOptions.appendChild(btn);
+            });
+            modal.style.display = 'flex';
+            startCountdown();
+        }
+
+        function checkAnswer(selectedIdx, btn) {
+            clearInterval(timerInterval);
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            const qResult = document.getElementById('qResult');
+            const closeBtn = document.querySelector('.close-modal-btn');
+            const explanationBox = document.getElementById('explanationBox');
+            const explanationText = document.getElementById('explanationText');
+            document.getElementById('useHintBtn').style.display = 'none';
+
+            if (selectedIdx === currentQuestionData.correct) {
+                btn.classList.add('correct');
+                qResult.innerText = "CHÍNH XÁC! (+10 điểm)";
+                qResult.style.color = "#2e7d32";
+                soundMgr.playCorrect();
+                speakText("Chính xác! Chúc mừng đồng chí.");
+                
+                gameStats.correct++;
+                updateScore(10); 
+                
+                if (currentScore < 80) {
+                    fireConfetti();
+                    closeBtn.style.display = 'block';
+                    closeBtn.innerText = "Tiếp tục hành quân";
+                    closeBtn.onclick = closeModal;
+                }
+
+            } else {
+                btn.classList.add('wrong');
+                allBtns[currentQuestionData.correct].classList.add('correct');
+                
+                qResult.innerText = "RẤT TIẾC! NHIỆM VỤ THẤT BẠI.";
+                qResult.style.color = "#c62828";
+                
+                soundMgr.playWrong();
+                const correctContent = currentQuestionData.options[currentQuestionData.correct];
+                speakText("Sai rồi! Đáp án đúng là: " + correctContent);
+                
+                gameStats.wrong++;
+                
+                if (currentQuestionData.explanation) {
+                    explanationText.innerText = currentQuestionData.explanation;
+                    explanationBox.style.display = 'block';
+                }
+
+                closeBtn.style.display = 'block';
+                closeBtn.innerText = "KẾT THÚC NHIỆM VỤ";
+                closeBtn.classList.add('game-over-btn');
+                closeBtn.onclick = () => finishGame(true);
+            }
+        }
+
+        function showAlert(title, msg, icon) {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMsg').innerHTML = msg;
+            document.getElementById('alertIcon').innerText = icon;
+            document.getElementById('alertModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('questionModal').style.display = 'none';
+            clearInterval(timerInterval);
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
+
+        function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
+
+        function finishGame(isDefeat = false) {
+            document.getElementById('questionModal').style.display = 'none';
+            document.getElementById('finalScore').innerText = currentScore;
+            document.getElementById('finalCorrect').innerText = gameStats.correct;
+            document.getElementById('finalWrong').innerText = gameStats.wrong;
+            
+            const reviewHeader = document.getElementById('reviewHeader');
+            const reviewMsg = document.getElementById('reviewMessage');
+            
+            if (isDefeat) {
+                reviewHeader.style.background = "#c62828"; 
+                reviewHeader.innerText = "NHIỆM VỤ THẤT BẠI";
+                reviewMsg.innerText = "Rất tiếc! Đồng chí đã phải dừng cuộc chơi.";
+            } else {
+                reviewHeader.style.background = "#1976d2"; 
+                reviewHeader.innerText = "TỔNG KẾT CHIẾN DỊCH";
+                // Đã xóa thông điệp 80 năm ở đây
+                reviewMsg.innerHTML = "Đồng chí đã hoàn thành lượt chơi xuất sắc!";
+                fireConfetti();
+            }
+            document.getElementById('reviewModal').style.display = 'flex';
+        }
+
+        function resetGameSession() {
+            // Không xóa managerData (global) để giữ tính chu kỳ quà tặng
+            location.reload();
+        }
+
+        // Init
+        drawWheel();
+        window.onresize = drawWheel;
+
+    </script>
+</body>
+</html>
